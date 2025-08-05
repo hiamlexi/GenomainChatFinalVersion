@@ -20,21 +20,6 @@ export default function ExploreFeatures() {
   };
 
   const buildAgentFlow = () => navigate(paths.agents.builder());
-  const setSlashCommand = async () => {
-    const workspaces = await Workspace.all();
-    if (workspaces.length > 0) {
-      const firstWorkspace = workspaces[0];
-      navigate(
-        paths.workspace.chat(firstWorkspace.slug, {
-          search: { action: "open-new-slash-command-modal" },
-        })
-      );
-    }
-  };
-
-  const exploreSlashCommands = () => {
-    window.open(paths.communityHub.viewMoreOfType("slash-commands"), "_blank");
-  };
 
   const setSystemPrompt = async () => {
     const workspaces = await Workspace.all();
@@ -72,21 +57,6 @@ export default function ExploreFeatures() {
           onPrimaryAction={chatWithAgent}
           onSecondaryAction={buildAgentFlow}
           isNew={true}
-        />
-        <FeatureCard
-          title={t("main-page.exploreMore.features.slashCommands.title")}
-          description={t(
-            "main-page.exploreMore.features.slashCommands.description"
-          )}
-          primaryAction={t(
-            "main-page.exploreMore.features.slashCommands.primaryAction"
-          )}
-          secondaryAction={t(
-            "main-page.exploreMore.features.slashCommands.secondaryAction"
-          )}
-          onPrimaryAction={setSlashCommand}
-          onSecondaryAction={exploreSlashCommands}
-          isNew={false}
         />
         <FeatureCard
           title={t("main-page.exploreMore.features.systemPrompts.title")}

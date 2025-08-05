@@ -55,7 +55,7 @@ export default function CreateWorkspace({
   }
 
   function handleBack() {
-    navigate(paths.onboarding.survey());
+    navigate(paths.onboarding.dataHandling());
   }
 
   return (

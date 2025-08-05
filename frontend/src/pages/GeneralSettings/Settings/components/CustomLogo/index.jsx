@@ -77,36 +77,41 @@ export default function CustomLogo() {
         {t("customization.items.logo.description")}
       </p>
       {isDefaultLogo ? (
-        <div className="flex md:flex-row flex-col items-center">
-          <div className="flex flex-row gap-x-8">
-            <label
-              className="mt-3 transition-all duration-300 hover:opacity-60"
-              hidden={!isDefaultLogo}
-            >
-              <input
-                id="logo-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <div
-                className="w-80 py-4 bg-theme-settings-input-bg rounded-2xl border-2 border-dashed border-theme-text-secondary border-opacity-60 justify-center items-center inline-flex cursor-pointer"
-                htmlFor="logo-upload"
+        <div className="flex flex-col">
+          <div className="text-xs text-white/60 mt-2 mb-4">
+            Currently using text-based logo: <span className="font-bold">GenomainAB</span>
+          </div>
+          <div className="flex md:flex-row flex-col items-center">
+            <div className="flex flex-row gap-x-8">
+              <label
+                className="mt-3 transition-all duration-300 hover:opacity-60"
+                hidden={!isDefaultLogo}
               >
-                <div className="flex flex-col items-center justify-center">
-                  <div className="rounded-full bg-white/40">
-                    <Plus className="w-6 h-6 text-black/80 m-2" />
-                  </div>
-                  <div className="text-theme-text-primary text-opacity-80 text-sm font-semibold py-1">
-                    {t("customization.items.logo.add")}
-                  </div>
-                  <div className="text-theme-text-secondary text-opacity-60 text-xs font-medium py-1">
-                    {t("customization.items.logo.recommended")}
+                <input
+                  id="logo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <div
+                  className="w-80 py-4 bg-theme-settings-input-bg rounded-2xl border-2 border-dashed border-theme-text-secondary border-opacity-60 justify-center items-center inline-flex cursor-pointer"
+                  htmlFor="logo-upload"
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="rounded-full bg-white/40">
+                      <Plus className="w-6 h-6 text-black/80 m-2" />
+                    </div>
+                    <div className="text-theme-text-primary text-opacity-80 text-sm font-semibold py-1">
+                      {t("customization.items.logo.add")}
+                    </div>
+                    <div className="text-theme-text-secondary text-opacity-60 text-xs font-medium py-1">
+                      {t("customization.items.logo.recommended")}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </label>
+              </label>
+            </div>
           </div>
         </div>
       ) : (

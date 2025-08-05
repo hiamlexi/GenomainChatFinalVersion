@@ -5,7 +5,6 @@ import Home from "./Home";
 import LLMPreference from "./LLMPreference";
 import UserSetup from "./UserSetup";
 import DataHandling from "./DataHandling";
-import Survey from "./Survey";
 import CreateWorkspace from "./CreateWorkspace";
 
 const OnboardingSteps = {
@@ -13,7 +12,6 @@ const OnboardingSteps = {
   "llm-preference": LLMPreference,
   "user-setup": UserSetup,
   "data-handling": DataHandling,
-  survey: Survey,
   "create-workspace": CreateWorkspace,
 };
 

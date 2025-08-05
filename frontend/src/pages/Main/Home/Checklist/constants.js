@@ -3,9 +3,7 @@ import {
   ChatDots,
   Files,
   ChatCenteredText,
-  UsersThree,
 } from "@phosphor-icons/react";
-import SlashCommandIcon from "./ChecklistItem/icons/SlashCommand";
 import paths from "@/utils/paths";
 import { t } from "i18next";
 
@@ -126,43 +124,5 @@ export const CHECKLIST_ITEMS = () => [
       return true;
     },
     icon: ChatCenteredText,
-  },
-  {
-    id: "define_slash_command",
-    title: t("main-page.checklist.tasks.define_slash_command.title"),
-    description: t(
-      "main-page.checklist.tasks.define_slash_command.description"
-    ),
-    action: t("main-page.checklist.tasks.define_slash_command.action"),
-    handler: ({
-      workspaces = [],
-      navigate = noop,
-      showNewWsModal = noop,
-      showToast = noop,
-    }) => {
-      if (workspaces.length === 0) {
-        showToast(t("main-page.noWorkspaceError"), "warning", { clear: true });
-        showNewWsModal();
-        return false;
-      }
-      navigate(
-        paths.workspace.chat(workspaces[0].slug, {
-          search: { action: "open-new-slash-command-modal" },
-        })
-      );
-      return true;
-    },
-    icon: SlashCommandIcon,
-  },
-  {
-    id: "visit_community",
-    title: t("main-page.checklist.tasks.visit_community.title"),
-    description: t("main-page.checklist.tasks.visit_community.description"),
-    action: t("main-page.checklist.tasks.visit_community.action"),
-    handler: () => {
-      window.open(paths.communityHub.website(), "_blank");
-      return true;
-    },
-    icon: UsersThree,
   },
 ];

@@ -6,7 +6,6 @@ import NewWorkspaceModal, {
 import ActiveWorkspaces from "./ActiveWorkspaces";
 import useLogo from "@/hooks/useLogo";
 import useUser from "@/hooks/useUser";
-import Footer from "../Footer";
 import SettingsButton from "../SettingsButton";
 import { Link } from "react-router-dom";
 import paths from "@/utils/paths";
@@ -38,11 +37,17 @@ export default function Sidebar() {
         <div className="flex shrink-0 w-full justify-center my-[18px]">
           <div className="flex justify-between w-[250px] min-w-[250px]">
             <Link to={paths.home()} aria-label="Home">
-              <img
-                src={logo}
-                alt="Logo"
-                className={`rounded max-h-[24px] object-contain transition-opacity duration-500 ${showSidebar ? "opacity-100" : "opacity-0"}`}
-              />
+              {logo && logo.startsWith("text:") ? (
+                <span className={`text-theme-text-primary font-bold text-xl transition-opacity duration-500 ${showSidebar ? "opacity-100" : "opacity-0"}`}>
+                  {logo.replace("text:", "")}
+                </span>
+              ) : (
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className={`rounded max-h-[24px] object-contain transition-opacity duration-500 ${showSidebar ? "opacity-100" : "opacity-0"}`}
+                />
+              )}
             </Link>
             {canToggleSidebar && (
               <ToggleSidebarButton
@@ -65,7 +70,9 @@ export default function Sidebar() {
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 pt-4 pb-3 rounded-b-[16px] bg-theme-bg-sidebar bg-opacity-80 backdrop-filter backdrop-blur-md z-1">
-                <Footer />
+                <div className="flex justify-center">
+                  <SettingsButton />
+                </div>
               </div>
             </div>
           </div>
@@ -117,12 +124,18 @@ export function SidebarMobileHeader() {
           <List className="h-6 w-6" />
         </button>
         <div className="flex items-center justify-center flex-grow">
-          <img
-            src={logo}
-            alt="Logo"
-            className="block mx-auto h-6 w-auto"
-            style={{ maxHeight: "40px", objectFit: "contain" }}
-          />
+          {logo && logo.startsWith("text:") ? (
+            <span className="text-theme-text-primary font-bold text-xl">
+              {logo.replace("text:", "")}
+            </span>
+          ) : (
+            <img
+              src={logo}
+              alt="Logo"
+              className="block mx-auto h-6 w-auto"
+              style={{ maxHeight: "40px", objectFit: "contain" }}
+            />
+          )}
         </div>
         <div className="w-12"></div>
       </div>
@@ -148,12 +161,18 @@ export function SidebarMobileHeader() {
             {/* Header Information */}
             <div className="flex w-full items-center justify-between gap-x-4">
               <div className="flex shrink-1 w-fit items-center justify-start">
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="rounded w-full max-h-[40px]"
-                  style={{ objectFit: "contain" }}
-                />
+                {logo && logo.startsWith("text:") ? (
+                  <span className="text-theme-text-primary font-bold text-xl">
+                    {logo.replace("text:", "")}
+                  </span>
+                ) : (
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="rounded w-full max-h-[40px]"
+                    style={{ objectFit: "contain" }}
+                  />
+                )}
               </div>
               {(!user || user?.role !== "default") && (
                 <div className="flex gap-x-2 items-center text-slate-500 shink-0">
@@ -174,7 +193,9 @@ export function SidebarMobileHeader() {
                 </div>
               </div>
               <div className="z-99 absolute bottom-0 left-0 right-0 pt-2 pb-6 rounded-br-[26px] bg-theme-bg-sidebar bg-opacity-80 backdrop-filter backdrop-blur-md">
-                <Footer />
+                <div className="flex justify-center">
+                  <SettingsButton />
+                </div>
               </div>
             </div>
           </div>
