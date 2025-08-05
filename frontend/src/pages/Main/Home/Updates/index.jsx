@@ -66,7 +66,7 @@ function AnnouncementCard({
   thumbnail_url = null,
   title = "",
   subtitle = "",
-  author = "AnythingLLM",
+  author = "Genomain",
   date = null,
   goto = "#",
 }) {

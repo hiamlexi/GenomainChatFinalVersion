@@ -6,7 +6,7 @@ import { v4 } from "uuid";
 import { ABORT_STREAM_EVENT } from "@/utils/chat";
 
 const Workspace = {
-  workspaceOrderStorageKey: "anythingllm-workspace-order",
+  workspaceOrderStorageKey: "genomain-workspace-order",
 
   new: async function (data = {}) {
     const { workspace, message } = await fetch(`${API_BASE}/workspace/new`, {

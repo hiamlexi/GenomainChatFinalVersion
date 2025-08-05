@@ -67,22 +67,7 @@ const ChatEmbedWidgets = lazy(
 const PrivacyAndData = lazy(
   () => import("@/pages/GeneralSettings/PrivacyAndData")
 );
-const ExperimentalFeatures = lazy(
-  () => import("@/pages/Admin/ExperimentalFeatures")
-);
-const LiveDocumentSyncManage = lazy(
-  () => import("@/pages/Admin/ExperimentalFeatures/Features/LiveSync/manage")
-);
 const AgentBuilder = lazy(() => import("@/pages/Admin/AgentBuilder"));
-const CommunityHubTrending = lazy(
-  () => import("@/pages/GeneralSettings/CommunityHub/Trending")
-);
-const CommunityHubAuthentication = lazy(
-  () => import("@/pages/GeneralSettings/CommunityHub/Authentication")
-);
-const CommunityHubImportItem = lazy(
-  () => import("@/pages/GeneralSettings/CommunityHub/ImportItem")
-);
 const SystemPromptVariables = lazy(
   () => import("@/pages/Admin/SystemPromptVariables")
 );
@@ -199,10 +184,6 @@ export default function App() {
                     element={<ManagerRoute Component={ChatSettings} />}
                   />
                   <Route
-                    path="/settings/beta-features"
-                    element={<AdminRoute Component={ExperimentalFeatures} />}
-                  />
-                  <Route
                     path="/settings/api-keys"
                     element={<AdminRoute Component={GeneralApiKeys} />}
                   />
@@ -239,27 +220,7 @@ export default function App() {
                     element={<OnboardingFlow />}
                   />
 
-                  {/* Experimental feature pages  */}
-                  {/* Live Document Sync feature */}
-                  <Route
-                    path="/settings/beta-features/live-document-sync/manage"
-                    element={<AdminRoute Component={LiveDocumentSyncManage} />}
-                  />
 
-                  <Route
-                    path="/settings/community-hub/trending"
-                    element={<AdminRoute Component={CommunityHubTrending} />}
-                  />
-                  <Route
-                    path="/settings/community-hub/authentication"
-                    element={
-                      <AdminRoute Component={CommunityHubAuthentication} />
-                    }
-                  />
-                  <Route
-                    path="/settings/community-hub/import-item"
-                    element={<AdminRoute Component={CommunityHubImportItem} />}
-                  />
 
                   <Route
                     path="/settings/mobile-connections"

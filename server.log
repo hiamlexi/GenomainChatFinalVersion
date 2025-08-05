@@ -8,14 +8,6 @@
 [36m[backend][0m [32minfo[39m: prisma:info Starting a sqlite pool with 21 connections.
 [36m[backend][0m [32minfo[39m: [36m[BackgroundWorkerService][0m Feature is not enabled and will not be started.
 [36m[backend][0m [32minfo[39m: [36m[MetaGenerator][0m fetching custom meta tag settings...
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[MCPCompatibilityLayer][0m Initializing MCP Hypervisor - subsequent calls will boot faster
-[36m[backend][0m [32minfo[39m: [36m[MCPCompatibilityLayer][0m MCP Config File: /Users/linhpham/Desktop/test/anything-llm/server/storage/plugins/anythingllm_mcp_servers.json
-[36m[backend][0m [32minfo[39m: [36m[MCPCompatibilityLayer][0m Successfully started 0 MCP servers: []
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
-[36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2
+[36m[backend][0m [32minfo[39m: [32m[Event Logged][0m - login_event
+[36m[backend][0m [32minfo[39m: [36m[EncryptionManager][0m Loaded existing key & salt for encrypting arbitrary data.
 [36m[backend][0m [32minfo[39m: [36m[NativeEmbedder][0m Initialized Xenova/all-MiniLM-L6-v2

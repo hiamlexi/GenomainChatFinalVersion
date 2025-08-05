@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# AnythingLLM Production Stop Script
+# Genomain Production Stop Script
 
-echo "Stopping AnythingLLM services..."
+echo "Stopping Genomain services..."
 
 # Kill all node processes
 pkill node
 
-echo "All AnythingLLM services have been stopped."
+echo "All Genomain services have been stopped."

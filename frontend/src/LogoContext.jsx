@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-// import AnythingLLM from "./media/logo/anything-llm.png";
-// import AnythingLLMDark from "./media/logo/anything-llm-dark.png";
+// import Genomain from "./media/logo/genomain.png";
+// import GenomainDark from "./media/logo/genomain-dark.png";
 import DefaultLoginLogoLight from "./media/illustrations/login-logo.svg";
 import DefaultLoginLogoDark from "./media/illustrations/login-logo-light.svg";
 import System from "./models/system";
@@ -20,13 +20,13 @@ export function LogoProvider({ children }) {
   async function fetchInstanceLogo() {
     try {
       const { isCustomLogo, logoURL } = await System.fetchLogo();
-      // If it's not a custom logo (i.e., it's the default AnythingLLM logo), use text instead
+      // If it's not a custom logo (i.e., it's the default Genomain logo), use text instead
       if (logoURL && isCustomLogo) {
         setLogo(logoURL);
         setLoginLogo(logoURL);
         setIsCustomLogo(isCustomLogo);
       } else {
-        // Use text instead of the default AnythingLLM logo
+        // Use text instead of the default Genomain logo
         setLogo("text:GenomainAB");
         setLoginLogo(DefaultLoginLogo);
         setIsCustomLogo(false);

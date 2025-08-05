@@ -9,7 +9,7 @@ const {
   HumanMessage,
   SystemMessage,
   AIMessage,
-} = require("@langchain/core/messages.js");
+} = require("@langchain/core/messages");
 
 /**
  * The agent provider for the AWS Bedrock provider.
