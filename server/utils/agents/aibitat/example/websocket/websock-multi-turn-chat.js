@@ -3,7 +3,7 @@
 // Scraping is enabled, but search requires AGENT_GSE_* keys.
 
 const express = require("express");
-const chalk = require("chalk");
+const chalk = require("chalk/index.js");
 const AIbitat = require("../../index.js");
 const {
   websocket,

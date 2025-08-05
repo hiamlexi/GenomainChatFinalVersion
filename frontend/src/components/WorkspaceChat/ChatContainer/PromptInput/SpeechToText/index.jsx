@@ -5,7 +5,7 @@ import _regeneratorRuntime from "regenerator-runtime";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { PROMPT_INPUT_EVENT } from "../../PromptInput";
+import { PROMPT_INPUT_EVENT } from "..";
 import { useTranslation } from "react-i18next";
 import Appearance from "@/models/appearance";
 
