@@ -12,7 +12,7 @@ const {
   ROLES,
 } = require("../../utils/middleware/multiUserProtected");
 const { validWorkspaceSlug } = require("../../utils/middleware/validWorkspace");
-const { validatedRequest } = require("../../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../../utils/middleware");
 
 function liveSyncEndpoints(app) {
   if (!app) return;

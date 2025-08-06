@@ -23,7 +23,7 @@ const {
   flexUserRoleValid,
   ROLES,
 } = require("../utils/middleware/multiUserProtected");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const ImportedPlugin = require("../utils/agents/imported");
 const {
   simpleSSOLoginDisabledMiddleware,
@@ -46,38 +46,134 @@ function adminEndpoints(app) {
     }
   );
 
+  // DISABLED: User creation is now handled by AdminSystem
+  // app.post(
+  //   "/admin/users/new",
+  //   [validatedRequest, strictMultiUserRoleValid([ROLES.admin, ROLES.manager])],
+  //   async (request, response) => {
+  //     try {
+  //       const currUser = await userFromSession(request, response);
+  //       const newUserParams = reqBody(request);
+  //       const roleValidation = validRoleSelection(currUser, newUserParams);
+
+  //       if (!roleValidation.valid) {
+  //         response
+  //           .status(200)
+  //           .json({ user: null, error: roleValidation.error });
+  //         return;
+  //       }
+
+  //       const { user: newUser, error } = await User.create(newUserParams);
+  //       if (!!newUser) {
+  //         await EventLogs.logEvent(
+  //           "user_created",
+  //           {
+  //             userName: newUser.username,
+  //             createdBy: currUser.username,
+  //           },
+  //           currUser.id
+  //         );
+  //       }
+
+  //       response.status(200).json({ user: newUser, error });
+  //     } catch (e) {
+  //       console.error(e);
+  //       response.sendStatus(500).end();
+  //     }
+  //   }
+  // );
   app.post(
     "/admin/users/new",
     [validatedRequest, strictMultiUserRoleValid([ROLES.admin, ROLES.manager])],
     async (request, response) => {
       try {
+        const adminSystemUrl = process.env.ADMIN_SYSTEM_URL || "http://localhost:5002";
+        const axios = require("axios");
         const currUser = await userFromSession(request, response);
         const newUserParams = reqBody(request);
-        const roleValidation = validRoleSelection(currUser, newUserParams);
 
+        // Validate role selection based on current user's role
+        const roleValidation = validRoleSelection(currUser, newUserParams);
         if (!roleValidation.valid) {
-          response
-            .status(200)
-            .json({ user: null, error: roleValidation.error });
+          response.status(200).json({ 
+            user: null, 
+            error: roleValidation.error 
+          });
           return;
         }
 
-        const { user: newUser, error } = await User.create(newUserParams);
-        if (!!newUser) {
+        // Get the current user's token from the Authorization header
+        const auth = request.header("Authorization");
+        const token = auth ? auth.split(" ")[1] : null;
+
+        // Create user in AdminSystem
+        const createUserResponse = await axios.post(
+          `${adminSystemUrl}/api/users`,
+          {
+            username: newUserParams.username,
+            password: newUserParams.password,
+            email: newUserParams.email || `${newUserParams.username}@genomain.com`,
+            name: newUserParams.username,
+            role: newUserParams.role || "default",
+            companyId: 1, // Default company ID in AdminSystem
+            agentId: 1    // Default agent ID in AdminSystem
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        if (createUserResponse.data.status === "success") {
           await EventLogs.logEvent(
             "user_created",
             {
-              userName: newUser.username,
+              userName: newUserParams.username,
               createdBy: currUser.username,
+              source: "AdminSystem"
             },
             currUser.id
           );
-        }
 
-        response.status(200).json({ user: newUser, error });
-      } catch (e) {
-        console.error(e);
-        response.sendStatus(500).end();
+          // Return in the format Genomain expects
+          response.status(200).json({ 
+            user: {
+              id: createUserResponse.data.data.id,
+              username: createUserResponse.data.data.username,
+              email: createUserResponse.data.data.email,
+              role: createUserResponse.data.data.role,
+              suspended: 0
+            }, 
+            error: null 
+          });
+        } else {
+          response.status(200).json({ 
+            user: null, 
+            error: createUserResponse.data.message || "Failed to create user in AdminSystem" 
+          });
+        }
+      } catch (error) {
+        console.error("Error creating user in AdminSystem:", error.response?.data || error.message);
+        
+        // Handle specific error cases
+        if (error.response?.data?.message?.includes("already exists")) {
+          response.status(200).json({ 
+            user: null, 
+            error: "Username already exists" 
+          });
+        } else if (error.response?.status === 401) {
+          response.status(200).json({ 
+            user: null, 
+            error: "Not authorized to create users in AdminSystem" 
+          });
+        } else {
+          response.status(200).json({ 
+            user: null, 
+            error: error.response?.data?.message || "Failed to create user in AdminSystem" 
+          });
+        }
       }
     }
   );

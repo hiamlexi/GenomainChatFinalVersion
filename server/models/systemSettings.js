@@ -385,13 +385,17 @@ const SystemSettings = {
   },
 
   isMultiUserMode: async function () {
-    try {
-      const setting = await this.get({ label: "multi_user_mode" });
-      return setting?.value === "true";
-    } catch (error) {
-      console.error(error.message);
-      return false;
-    }
+    // Always return true - users are managed by AdminSystem
+    return true;
+    
+    // Original logic disabled:
+    // try {
+    //   const setting = await this.get({ label: "multi_user_mode" });
+    //   return setting?.value === "true";
+    // } catch (error) {
+    //   console.error(error.message);
+    //   return false;
+    // }
   },
 
   currentLogoFilename: async function () {

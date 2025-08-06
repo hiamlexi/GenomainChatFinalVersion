@@ -14,7 +14,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Database path
-DB_PATH = "/Users/linhpham/Desktop/test/anything-llm/server/storage/anythingllm.db"
+DB_PATH = "/Users/linhpham/Desktop/test/Genomain/server/storage/anythingllm.db"
 
 # HTML template for the web interface
 HTML_TEMPLATE = """
@@ -300,6 +300,6 @@ if __name__ == '__main__':
         print("Make sure AnythingLLM is installed and has created the database.")
     else:
         print("Starting SQLite Database Viewer...")
-        print("Access the database at: http://localhost:5000")
+        print("Access the database at: http://localhost:5050")
         print("Press Ctrl+C to stop the server")
-        app.run(host='localhost', port=5000, debug=True)
+        app.run(host='localhost', port=5050, debug=True)

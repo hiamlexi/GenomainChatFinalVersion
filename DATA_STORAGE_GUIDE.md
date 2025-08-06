@@ -95,11 +95,11 @@ Access at: http://localhost:5001
 ```bash
 ./start-db-viewer.sh
 ```
-Access at: http://localhost:5000
+Access at: http://localhost:5050
 
 ### Option 4: GUI Applications
 Use any SQLite browser and open:
-`/Users/linhpham/Desktop/test/anything-llm/server/storage/anythingllm.db`
+`/Users/linhpham/Desktop/test/Genomain/server/storage/anythingllm.db`
 
 ## Important Notes
 

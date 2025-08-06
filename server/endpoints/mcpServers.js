@@ -4,7 +4,7 @@ const {
   flexUserRoleValid,
   ROLES,
 } = require("../utils/middleware/multiUserProtected");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 
 function mcpServersEndpoints(app) {
   if (!app) return;

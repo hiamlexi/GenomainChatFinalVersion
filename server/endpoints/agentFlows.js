@@ -3,7 +3,7 @@ const {
   flexUserRoleValid,
   ROLES,
 } = require("../utils/middleware/multiUserProtected");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const { Telemetry } = require("../models/telemetry");
 
 function agentFlowEndpoints(app) {

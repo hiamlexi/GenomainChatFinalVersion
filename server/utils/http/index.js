@@ -42,6 +42,35 @@ async function userFromSession(request, response = null) {
     return null;
   }
 
+  // Check if we're using AdminSystem gateway
+  const { SystemSettings } = require("../../models/systemSettings");
+  const isMultiUser = await SystemSettings.isMultiUserMode();
+  
+  if (isMultiUser) {
+    // Use AdminSystem for validation
+    const adminSystemClient = require("../adminSystemClient");
+    try {
+      const validation = await adminSystemClient.validateToken(token);
+      
+      if (!validation.valid) {
+        return null;
+      }
+      
+      // Return user in expected format
+      return {
+        id: validation.user.id,
+        username: validation.user.username,
+        email: validation.user.email,
+        role: validation.user.role,
+        suspended: validation.user.suspended || false,
+      };
+    } catch (error) {
+      console.error("AdminSystem validation error in userFromSession:", error);
+      return null;
+    }
+  }
+
+  // Fallback to local database lookup (single user mode)
   const valid = decodeJWT(token);
   if (!valid || !valid.id) {
     return null;

@@ -1,5 +1,5 @@
 const { SystemSettings } = require("../models/systemSettings");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const { reqBody } = require("../utils/http");
 const { CommunityHub } = require("../models/communityHub");
 const {

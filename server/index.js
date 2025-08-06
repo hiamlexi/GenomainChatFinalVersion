@@ -29,6 +29,7 @@ const { communityHubEndpoints } = require("./endpoints/communityHub");
 const { agentFlowEndpoints } = require("./endpoints/agentFlows");
 const { mcpServersEndpoints } = require("./endpoints/mcpServers");
 const { mobileEndpoints } = require("./endpoints/mobile");
+const { authGatewayEndpoints } = require("./endpoints/authGateway");
 const app = express();
 const apiRouter = express.Router();
 const FILE_LIMIT = "3GB";
@@ -50,6 +51,7 @@ if (!!process.env.ENABLE_HTTPS) {
 }
 
 app.use("/api", apiRouter);
+authGatewayEndpoints(apiRouter);
 systemEndpoints(apiRouter);
 extensionEndpoints(apiRouter);
 workspaceEndpoints(apiRouter);

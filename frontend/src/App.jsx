@@ -10,7 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "@/pages/Login";
 import SimpleSSOPassthrough from "@/pages/Login/SSO/simple";
-import OnboardingFlow from "@/pages/OnboardingFlow";
+// import OnboardingFlow from "@/pages/OnboardingFlow"; // Disabled - users created via AdminSystem
 import i18n from "./i18n";
 
 import { PfpProvider } from "./PfpContext";
@@ -214,10 +214,10 @@ export default function App() {
                     element={<ManagerRoute Component={AdminWorkspaces} />}
                   />
                   {/* Onboarding Flow */}
-                  <Route path="/onboarding" element={<OnboardingFlow />} />
+                  {/* <Route path="/onboarding" element={<OnboardingFlow />} /> */}
                   <Route
                     path="/onboarding/:step"
-                    element={<OnboardingFlow />}
+                    element={<Login />} // Redirect to login instead of onboarding
                   />
 
 

@@ -2,6 +2,7 @@ const { SystemSettings } = require("../../models/systemSettings");
 const { User } = require("../../models/user");
 const { EncryptionManager } = require("../EncryptionManager");
 const { decodeJWT } = require("../http");
+const adminSystemClient = require("../adminSystemClient");
 const EncryptionMgr = new EncryptionManager();
 
 async function validatedRequest(request, response, next) {
@@ -79,20 +80,40 @@ async function validateMultiUserRequest(request, response, next) {
     return;
   }
 
-  const valid = decodeJWT(token);
-  if (!valid || !valid.id) {
+  // Validate token with AdminSystem
+  const validation = await adminSystemClient.validateToken(token);
+  
+  if (!validation.valid) {
     response.status(401).json({
-      error: "Invalid auth token.",
+      error: validation.message || "Invalid auth token.",
     });
     return;
   }
 
-  const user = await User.get({ id: valid.id });
+  // Get or create local user based on AdminSystem user
+  const adminUser = validation.user;
+  console.log('[Auth] AdminSystem user:', adminUser);
+  
+  let user = await User.get({ username: adminUser.username });
+  console.log('[Auth] Local user found:', user ? `ID ${user.id}` : 'none');
+  
   if (!user) {
-    response.status(401).json({
-      error: "Invalid auth for user.",
+    // Create local user if doesn't exist
+    const { user: newUser, error } = await User._create({
+      username: adminUser.username,
+      password: "adminSystemManaged", // Password is managed by AdminSystem
+      role: adminUser.role || "default",
     });
-    return;
+    
+    if (error) {
+      console.error('[Auth] Failed to create user:', error);
+      response.status(401).json({
+        error: "Failed to create local user.",
+      });
+      return;
+    }
+    user = newUser;
+    console.log('[Auth] Created new local user:', user.id);
   }
 
   if (user.suspended) {

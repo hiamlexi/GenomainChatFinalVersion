@@ -28,17 +28,17 @@ function useIsAuthenticated() {
 
       setMultiUserMode(MultiUserMode);
 
-      // Check for the onboarding redirect condition
-      if (
-        !MultiUserMode &&
-        !RequiresAuth && // Not in Multi-user AND no password set.
-        !LLMProvider &&
-        !VectorDB
-      ) {
-        setShouldRedirectToOnboarding(true);
-        setIsAuthed(true);
-        return;
-      }
+      // DISABLED: Onboarding flow removed - users created via AdminSystem
+      // if (
+      //   !MultiUserMode &&
+      //   !RequiresAuth && // Not in Multi-user AND no password set.
+      //   !LLMProvider &&
+      //   !VectorDB
+      // ) {
+      //   setShouldRedirectToOnboarding(true);
+      //   setIsAuthed(true);
+      //   return;
+      // }
 
       if (!MultiUserMode && !RequiresAuth) {
         setIsAuthed(true);
@@ -89,9 +89,10 @@ export function AdminRoute({ Component, hideUserMenu = false }) {
     useIsAuthenticated();
   if (isAuthd === null) return <FullScreenLoader />;
 
-  if (shouldRedirectToOnboarding) {
-    return <Navigate to={paths.onboarding.home()} />;
-  }
+  // Onboarding disabled - users created via AdminSystem
+  // if (shouldRedirectToOnboarding) {
+  //   return <Navigate to={paths.onboarding.home()} />;
+  // }
 
   const user = userFromStorage();
   return isAuthd && (user?.role === "admin" || !multiUserMode) ? (
@@ -118,9 +119,10 @@ export function ManagerRoute({ Component }) {
     useIsAuthenticated();
   if (isAuthd === null) return <FullScreenLoader />;
 
-  if (shouldRedirectToOnboarding) {
-    return <Navigate to={paths.onboarding.home()} />;
-  }
+  // Onboarding disabled - users created via AdminSystem
+  // if (shouldRedirectToOnboarding) {
+  //   return <Navigate to={paths.onboarding.home()} />;
+  // }
 
   const user = userFromStorage();
   return isAuthd && (user?.role !== "default" || !multiUserMode) ? (
@@ -138,9 +140,10 @@ export default function PrivateRoute({ Component }) {
   const { isAuthd, shouldRedirectToOnboarding } = useIsAuthenticated();
   if (isAuthd === null) return <FullScreenLoader />;
 
-  if (shouldRedirectToOnboarding) {
-    return <Navigate to="/onboarding" />;
-  }
+  // Onboarding disabled - users created via AdminSystem
+  // if (shouldRedirectToOnboarding) {
+  //   return <Navigate to="/onboarding" />;
+  // }
 
   return isAuthd ? (
     <KeyboardShortcutWrapper>

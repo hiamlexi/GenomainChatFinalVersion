@@ -69,6 +69,19 @@ model users {
   lastUpdatedAt               DateTime                      @default(now())
   dailyMessageLimit           Int?
   bio                         String?                       @default("")
+  
+  // AdminSystem specific fields
+  email                       String?                       @unique
+  name                        String?
+  companyId                   String?
+  agentId                     String?
+  aiName                      String?
+  aiPrompt                    String?
+  files                       String?                       // JSON string array
+  urls                        String?                       // JSON string array
+  isDeleted                   Boolean                       @default(false)
+  
+  // Relations
   workspace_chats             workspace_chats[]
   workspace_users             workspace_users[]
   embed_configs               embed_configs[]
@@ -83,6 +96,9 @@ model users {
   system_prompt_variables     system_prompt_variables[]
   prompt_history              prompt_history[]
   desktop_mobile_devices      desktop_mobile_devices[]
+  companies                   companies?                    @relation(fields: [companyId], references: [id])
+  computer_agents             computer_agents?              @relation(fields: [agentId], references: [id])
+  training_jobs               training_jobs[]
 }
 
 model recovery_codes {
@@ -370,4 +386,132 @@ model desktop_mobile_devices {
   user       users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// AdminSystem Models
+// Admin model - for backward compatibility with existing AdminSystem
+model admins {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  password      String
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  lastLogin     DateTime?
+}
+
+// Company model from AdminSystem
+model companies {
+  id            String   @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  address       String?
+  website       String?
+  industry      String?
+  size          String?
+  description   String?
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  isDeleted     Boolean  @default(false)
+  
+  // Relations
+  users         users[]
+  agents        agents[]
+  modules       modules[]
+}
+
+// Computer agents model from AdminSystem
+model computer_agents {
+  id            String   @id @default(cuid())
+  agentId       String   @unique
+  name          String
+  ipAddress     String?
+  macAddress    String?
+  osType        String?
+  osVersion     String?
+  lastSeen      DateTime?
+  status        String   @default("offline")
+  capabilities  String?  // JSON string
+  metadata      String?  // JSON string
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  isDeleted     Boolean  @default(false)
+  
+  // Relations
+  users         users[]
+  training_jobs training_jobs[]
+}
+
+// Agents model from AdminSystem (AI agents)
+model agents {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String   @default("chatbot")
+  status        String   @default("inactive")
+  configuration String?  // JSON string
+  companyId     String?
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  isDeleted     Boolean  @default(false)
+  
+  // Relations
+  company       companies? @relation(fields: [companyId], references: [id])
+}
+
+// Modules model from AdminSystem
+model modules {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  type          String
+  status        String   @default("inactive")
+  configuration String?  // JSON string
+  companyId     String?
+  version       String?
+  isEnabled     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  isDeleted     Boolean  @default(false)
+  
+  // Relations
+  company       companies? @relation(fields: [companyId], references: [id])
+}
+
+// Training jobs model from AdminSystem
+model training_jobs {
+  id            String   @id @default(cuid())
+  jobId         String   @unique
+  agentId       String
+  companyId     String
+  userId        Int?
+  status        String   @default("pending")
+  type          String?
+  files         String?  // JSON string array
+  urls          String?  // JSON string array
+  result        String?  // JSON string
+  error         String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  
+  // Relations
+  user          users?   @relation(fields: [userId], references: [id])
+  computer_agent computer_agents @relation(fields: [agentId], references: [id])
+}
+
+// Settings model from AdminSystem
+model settings {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         String?
+  type          String   @default("string")
+  description   String?
+  category      String?
+  isPublic      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 }

@@ -15,7 +15,6 @@
 // from the primary dictionary.
 
 import English from "./en/common.js";
-import Danish from "./da/common.js";
 
 
 export const defaultNS = "common";
@@ -23,7 +22,4 @@ export const resources = {
   en: {
     common: English,
   },
-  da: {
-    common: Danish,
-  }
 };

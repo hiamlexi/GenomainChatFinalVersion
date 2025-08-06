@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const { reqBody, userFromSession, multiUserMode } = require("../utils/http");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const { Telemetry } = require("../models/telemetry");
 const { streamChatWithWorkspace } = require("../utils/chats/stream");
 const {

@@ -16,7 +16,7 @@ const { handleAssetUpload, handlePfpUpload } = require("../utils/files/multer");
 const { v4 } = require("uuid");
 const { SystemSettings } = require("../models/systemSettings");
 const { User } = require("../models/user");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const fs = require("fs");
 const path = require("path");
 const {
@@ -30,7 +30,6 @@ const {
   isDefaultFilename,
 } = require("../utils/files/logo");
 const { Telemetry } = require("../models/telemetry");
-const { WelcomeMessages } = require("../models/welcomeMessages");
 const { ApiKey } = require("../models/apiKeys");
 const { getCustomModels } = require("../utils/helpers/customModels");
 const { WorkspaceChats } = require("../models/workspaceChats");
@@ -119,6 +118,97 @@ function systemEndpoints(app) {
       const bcrypt = require("bcrypt");
 
       if (await SystemSettings.isMultiUserMode()) {
+        // In multi-user mode, use AdminSystem for authentication
+        const adminSystemClient = require("../utils/adminSystemClient");
+        const { username, password } = reqBody(request);
+        
+        if (!username || !password) {
+          response.status(400).json({
+            user: null,
+            valid: false,
+            token: null,
+            message: "Username and password are required.",
+          });
+          return;
+        }
+
+        try {
+          // Use AdminSystem URL from environment
+          const adminSystemUrl = process.env.ADMIN_SYSTEM_URL || "http://localhost:5002";
+          const axios = require("axios");
+          
+          // Login to AdminSystem
+          const loginResponse = await axios.post(`${adminSystemUrl}/api/auth/login`, {
+            username,
+            password,
+          });
+
+          if (loginResponse.data.status !== "success") {
+            await EventLogs.logEvent("failed_login_invalid_credentials", {
+              ip: request.ip || "Unknown IP",
+              username: username || "Unknown user",
+            });
+            
+            response.status(200).json({
+              user: null,
+              valid: false,
+              token: null,
+              message: "[001] Invalid login credentials.",
+            });
+            return;
+          }
+
+          const { token, user } = loginResponse.data;
+
+          // Log successful login
+          await Telemetry.sendTelemetry("login_event", { multiUserMode: true });
+          await EventLogs.logEvent("login_event", {
+            ip: request.ip || "Unknown IP",
+            username: user.username || "Unknown user",
+          });
+
+          // Return the AdminSystem token and user info
+          response.status(200).json({
+            valid: true,
+            user: {
+              id: user._id || user.id,
+              username: user.username,
+              email: user.email,
+              role: user.role || "default",
+            },
+            token: token,
+            message: null,
+          });
+          return;
+        } catch (error) {
+          console.error("AdminSystem login error:", error.response?.data || error.message);
+          
+          if (error.response?.status === 401) {
+            await EventLogs.logEvent("failed_login_invalid_credentials", {
+              ip: request.ip || "Unknown IP",
+              username: username || "Unknown user",
+            });
+            
+            response.status(200).json({
+              user: null,
+              valid: false,
+              token: null,
+              message: "[001] Invalid login credentials.",
+            });
+          } else {
+            response.status(500).json({
+              user: null,
+              valid: false,
+              token: null,
+              message: "Authentication service unavailable.",
+            });
+          }
+          return;
+        }
+      }
+
+      // Original multi-user logic is now disabled - using AdminSystem instead
+      if (false) {
         if (simpleSSOLoginDisabled()) {
           response.status(403).json({
             user: null,
@@ -527,45 +617,12 @@ function systemEndpoints(app) {
     [validatedRequest],
     async (request, response) => {
       try {
-        if (response.locals.multiUserMode) {
-          response.status(200).json({
-            success: false,
-            error: "Multi-user mode is already enabled.",
-          });
-          return;
-        }
-
-        const { username, password } = reqBody(request);
-        const { user, error } = await User.create({
-          username,
-          password,
-          role: ROLES.admin,
+        // DISABLED: User creation now handled by AdminSystem
+        response.status(403).json({
+          success: false,
+          error: "Multi-user mode setup is disabled. Users must be created through AdminSystem.",
         });
-
-        if (error || !user) {
-          response.status(400).json({
-            success: false,
-            error: error || "Failed to enable multi-user mode.",
-          });
-          return;
-        }
-
-        await SystemSettings._updateSettings({
-          multi_user_mode: true,
-        });
-        await BrowserExtensionApiKey.migrateApiKeysToMultiUser(user.id);
-
-        await updateENV(
-          {
-            JWTSecret: process.env.JWT_SECRET || v4(),
-          },
-          true
-        );
-        await Telemetry.sendTelemetry("enabled_multi_user_mode", {
-          multiUserMode: true,
-        });
-        await EventLogs.logEvent("multi_user_mode_enabled", {}, user?.id);
-        response.status(200).json({ success: !!user, error });
+        return;
       } catch (e) {
         await User.delete({});
         await SystemSettings._updateSettings({
@@ -845,49 +902,6 @@ function systemEndpoints(app) {
     }
   );
 
-  app.get(
-    "/system/welcome-messages",
-    [validatedRequest, flexUserRoleValid([ROLES.all])],
-    async function (_, response) {
-      try {
-        const welcomeMessages = await WelcomeMessages.getMessages();
-        response.status(200).json({ success: true, welcomeMessages });
-      } catch (error) {
-        console.error("Error fetching welcome messages:", error);
-        response
-          .status(500)
-          .json({ success: false, message: "Internal server error" });
-      }
-    }
-  );
-
-  app.post(
-    "/system/set-welcome-messages",
-    [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
-    async (request, response) => {
-      try {
-        const { messages = [] } = reqBody(request);
-        if (!Array.isArray(messages)) {
-          return response.status(400).json({
-            success: false,
-            message: "Invalid message format. Expected an array of messages.",
-          });
-        }
-
-        await WelcomeMessages.saveAll(messages);
-        return response.status(200).json({
-          success: true,
-          message: "Welcome messages saved successfully.",
-        });
-      } catch (error) {
-        console.error("Error processing the welcome messages:", error);
-        response.status(500).json({
-          success: true,
-          message: "Error saving the welcome messages.",
-        });
-      }
-    }
-  );
 
   app.get("/system/api-keys", [validatedRequest], async (_, response) => {
     try {

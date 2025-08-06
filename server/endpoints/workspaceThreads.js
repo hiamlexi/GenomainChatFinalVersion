@@ -4,7 +4,7 @@ const {
   reqBody,
   safeJsonParse,
 } = require("../utils/http");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const { Telemetry } = require("../models/telemetry");
 const {
   flexUserRoleValid,

@@ -1,15 +1,15 @@
 # AnythingLLM Database Access
 
 AnythingLLM uses SQLite as its database, which is stored locally at:
-`/Users/linhpham/Desktop/test/anything-llm/server/storage/anythingllm.db`
+`/Users/linhpham/Desktop/test/Genomain/server/storage/anythingllm.db`
 
 ## Access Methods
 
-### 1. Python Web Interface (Port 5000)
+### 1. Python Web Interface (Port 5050)
 ```bash
 ./start-db-viewer.sh
 ```
-- Access at: http://localhost:5000
+- Access at: http://localhost:5050
 - Features: Table browsing, custom queries, schema viewing
 - Requires: Python 3 with Flask
 

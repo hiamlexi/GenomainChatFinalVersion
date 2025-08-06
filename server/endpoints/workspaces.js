@@ -13,7 +13,7 @@ const { DocumentVectors } = require("../models/vectors");
 const { WorkspaceChats } = require("../models/workspaceChats");
 const { getVectorDbClass } = require("../utils/helpers");
 const { handleFileUpload, handlePfpUpload } = require("../utils/files/multer");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const { Telemetry } = require("../models/telemetry");
 const {
   flexUserRoleValid,
@@ -41,6 +41,28 @@ function workspaceEndpoints(app) {
   if (!app) return;
 
   const responseCache = new Map();
+
+  app.get(
+    "/workspaces",
+    [validatedRequest, flexUserRoleValid([ROLES.all])],
+    async (request, response) => {
+      try {
+        const user = await userFromSession(request, response);
+        console.log('[Workspaces] User:', user ? `${user.username} (ID: ${user.id})` : 'none');
+        console.log('[Workspaces] Multi-user mode:', multiUserMode(response));
+        
+        const workspaces = multiUserMode(response)
+          ? await Workspace.whereWithUser(user)
+          : await Workspace.where();
+          
+        console.log('[Workspaces] Found workspaces:', workspaces.length);
+        response.status(200).json({ workspaces });
+      } catch (e) {
+        console.error('[Workspaces] Error:', e.message, e);
+        response.status(500).json({ workspaces: [] });
+      }
+    }
+  );
 
   app.post(
     "/workspace/new",

@@ -132,27 +132,6 @@ const TRANSLATIONS = {
     },
   },
 
-  welcomeMessage: {
-    part1:
-      "Welcome to GenomainAB! GenomainAB is an advanced AI assistant platform that helps you create intelligent chatbots from your documents and data. GenomainAB is a BYOK (bring-your-own-keys) software so there is no subscription, fee, or charges for this software outside of the services you want to use with it.",
-    part2:
-      "GenomainAB is the easiest way to put powerful AI products like OpenAI, GPT-4, LangChain, PineconeDB, ChromaDB, and other services together in a neat package with no fuss to increase your productivity by 100x.",
-    part3:
-      "GenomainAB can run totally locally on your machine with little overhead you won't even notice it's there! No GPU needed. Cloud and on-premises installation is available as well.\nThe AI tooling ecosystem gets more powerful everyday. GenomainAB makes it easy to use.",
-    githubIssue: "Create an issue on GitHub",
-    user1: "How do I get started?!",
-    part4:
-      "It's simple. All collections are organized into buckets we call \"Workspaces\". Workspaces are buckets of files, documents, images, PDFs, and other files which will be transformed into something LLM's can understand and use in conversation.\n\nYou can add and remove files at anytime.",
-    createWorkspace: "Create your first workspace",
-    user2:
-      "Is this like an AI dropbox or something? What about chatting? It is a chatbot isn't it?",
-    part5:
-      "GenomainAB is more than a smarter Dropbox.\n\nGenomainAB offers two ways of talking with your data:\n\n<i>Query:</i> Your chats will return data or inferences found with the documents in your workspace it has access to. Adding more documents to the Workspace make it smarter! \n\n<i>Conversational:</i> Your documents + your on-going chat history both contribute to the LLM knowledge at the same time. Great for appending real-time text-based info or corrections and misunderstandings the LLM might have. \n\nYou can toggle between either mode \n<i>in the middle of chatting!</i>",
-    user3: "Wow, this sounds amazing, let me try it out already!",
-    part6: "Have Fun!",
-    starOnGitHub: "Star on GitHub",
-    contact: "Contact GenomainAB Support",
-  },
 
   "main-page": {
     noWorkspaceError: "Please create a workspace before starting a chat.",
@@ -530,18 +509,6 @@ const TRANSLATIONS = {
         recommended: "Recommended size: 800 x 200",
         remove: "Remove",
         replace: "Replace",
-      },
-      "welcome-messages": {
-        title: "Welcome Messages",
-        description:
-          "Customize the welcome messages displayed to your users. Only non-admin users will see these messages.",
-        new: "New",
-        system: "system",
-        user: "user",
-        message: "message",
-        assistant: "Genomain Chat Assistant",
-        "double-click": "Double click to edit...",
-        save: "Save Messages",
       },
       "browser-appearance": {
         title: "Browser Appearance",

@@ -1,4 +1,4 @@
-const { validatedRequest } = require("../../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../../utils/middleware");
 const { MobileDevice } = require("../../models/mobileDevice");
 const { handleMobileCommand } = require("./utils");
 const { validDeviceToken, validRegistrationToken } = require("./middleware");

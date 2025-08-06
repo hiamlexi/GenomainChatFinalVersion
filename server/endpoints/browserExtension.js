@@ -6,7 +6,7 @@ const {
 } = require("../utils/middleware/validBrowserExtensionApiKey");
 const { CollectorApi } = require("../utils/collectorApi");
 const { reqBody, multiUserMode, userFromSession } = require("../utils/http");
-const { validatedRequest } = require("../utils/middleware/validatedRequest");
+const { validatedRequest } = require("../utils/middleware");
 const {
   flexUserRoleValid,
   ROLES,
