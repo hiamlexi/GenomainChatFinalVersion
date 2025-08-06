@@ -8,6 +8,12 @@ const { WorkspaceUser } = require("../../../models/workspaceUsers");
 const { canModifyAdmin } = require("../../../utils/helpers/admin");
 const { multiUserMode, reqBody } = require("../../../utils/http");
 const { validApiKey } = require("../../../utils/middleware/validApiKey");
+const { 
+  delegateUserCreation, 
+  delegateUserList,
+  delegateUserUpdate,
+  delegateUserDeletion 
+} = require("../../../utils/middleware/delegateToAdminSystem");
 
 function apiAdminEndpoints(app) {
   if (!app) return;
@@ -38,7 +44,7 @@ function apiAdminEndpoints(app) {
     response.status(200).json({ isMultiUser });
   });
 
-  app.get("/v1/admin/users", [validApiKey], async (request, response) => {
+  app.get("/v1/admin/users", [validApiKey, delegateUserList], async (request, response) => {
     /*
     #swagger.tags = ['Admin']
     #swagger.description = 'Check to see if the instance is in multi-user-mode first. Methods are disabled until multi user mode is enabled via the UI.'
@@ -82,7 +88,7 @@ function apiAdminEndpoints(app) {
     }
   });
 
-  app.post("/v1/admin/users/new", [validApiKey], async (request, response) => {
+  app.post("/v1/admin/users/new", [validApiKey, delegateUserCreation], async (request, response) => {
     /*
     #swagger.tags = ['Admin']
     #swagger.description = 'Create a new user with username and password. Methods are disabled until multi user mode is enabled via the UI.'

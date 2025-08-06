@@ -8,6 +8,7 @@ const { apiWorkspaceThreadEndpoints } = require("./workspaceThread");
 const { apiUserManagementEndpoints } = require("./userManagement");
 const { apiOpenAICompatibleEndpoints } = require("./openai");
 const { apiEmbedEndpoints } = require("./embed");
+const { adminSystemAuthEndpoints } = require("./auth/adminSystemIntegration");
 
 // All endpoints must be documented and pass through the validApiKey Middleware.
 // How to JSDoc an endpoint
@@ -15,7 +16,14 @@ const { apiEmbedEndpoints } = require("./embed");
 function developerEndpoints(app, router) {
   if (!router) return;
   useSwagger(app);
-  apiAuthEndpoints(router);
+  
+  // Use AdminSystem for authentication if enabled
+  if (process.env.USE_ADMIN_SYSTEM_AUTH === 'true') {
+    adminSystemAuthEndpoints(router);
+  } else {
+    apiAuthEndpoints(router);
+  }
+  
   apiAdminEndpoints(router);
   apiSystemEndpoints(router);
   apiWorkspaceEndpoints(router);
