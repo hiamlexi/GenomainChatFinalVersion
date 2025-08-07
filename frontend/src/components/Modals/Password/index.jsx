@@ -8,41 +8,63 @@ import {
   AUTH_TIMESTAMP,
 } from "../../../utils/constants";
 import useLogo from "../../../hooks/useLogo";
-import illustration from "@/media/illustrations/login-illustration.svg";
 
 export default function PasswordModal({ mode = "single" }) {
   const { loginLogo } = useLogo();
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] h-full bg-theme-bg-primary flex flex-col md:flex-row items-center justify-center">
-      <div
-        style={{
-          background: `
-    radial-gradient(circle at center, transparent 40%, black 100%),
-    linear-gradient(180deg, #85F8FF 0%, #65A6F2 100%)
-  `,
-          width: "575px",
-          filter: "blur(150px)",
-          opacity: "0.4",
-        }}
-        className="absolute left-0 top-0 z-0 h-full w-full"
-      />
-      <div className="hidden md:flex md:w-1/2 md:h-full md:items-center md:justify-center">
-        <img
-          className="w-full h-full object-contain z-50"
-          src={illustration}
-          alt="login illustration"
-        />
+    <div className="fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] h-full flex items-center justify-center" style={{
+      background: 'linear-gradient(135deg, #000428 0%, #004e92 100%)',
+      backgroundImage: `
+        radial-gradient(circle at 20% 50%, rgba(0, 150, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 200, 255, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(0, 100, 255, 0.2) 0%, transparent 50%),
+        linear-gradient(135deg, #000428 0%, #004e92 100%)
+      `
+    }}>
+      {/* Network pattern overlay */}
+      <div className="absolute inset-0 overflow-hidden" style={{
+        backgroundImage: `
+          linear-gradient(90deg, rgba(0, 150, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(rgba(0, 150, 255, 0.1) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px'
+      }}>
+        <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="network" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="0" cy="0" r="2" fill="#00aaff"/>
+              <circle cx="100" cy="0" r="2" fill="#00aaff"/>
+              <circle cx="0" cy="100" r="2" fill="#00aaff"/>
+              <circle cx="100" cy="100" r="2" fill="#00aaff"/>
+              <circle cx="50" cy="50" r="3" fill="#00ddff"/>
+              <line x1="0" y1="0" x2="50" y2="50" stroke="#00aaff" strokeWidth="0.5" opacity="0.5"/>
+              <line x1="100" y1="0" x2="50" y2="50" stroke="#00aaff" strokeWidth="0.5" opacity="0.5"/>
+              <line x1="0" y1="100" x2="50" y2="50" stroke="#00aaff" strokeWidth="0.5" opacity="0.5"/>
+              <line x1="100" y1="100" x2="50" y2="50" stroke="#00aaff" strokeWidth="0.5" opacity="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#network)"/>
+        </svg>
       </div>
-      <div className="flex flex-col items-center justify-center h-full w-full md:w-1/2 z-50 relative md:-mt-20 mt-0 !border-none bg-theme-bg-secondary md:bg-transparent">
+      
+      {/* Main content */}
+      <div className="flex flex-col items-center justify-center z-50 relative">
+        {/* Logo */}
         <img
-          src={loginLogo}
+          src="/Logga-vit.png"
           alt="Logo"
-          className={`hidden relative md:flex rounded-2xl w-fit m-4 z-30 ${
-            mode === "single" ? "md:top-2" : "md:top-12"
-          } absolute max-h-[65px]`}
-          style={{ objectFit: "contain" }}
+          className="mb-8 h-20 w-auto"
         />
-        {mode === "single" ? <SingleUserAuth /> : <MultiUserAuth />}
+        
+        {/* Login card */}
+        <div className="backdrop-blur-lg bg-white/5 rounded-2xl border border-white/10 shadow-2xl">
+          {mode === "single" ? <SingleUserAuth /> : <MultiUserAuth />}
+        </div>
+        
+        {/* Footer text */}
+        <p className="mt-8 text-gray-400 text-sm">
+          © 2024 GenomainAB. All rights reserved.
+        </p>
       </div>
     </div>
   );

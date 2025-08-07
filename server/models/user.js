@@ -328,6 +328,36 @@ const User = {
 
     return currentChatCount < user.dailyMessageLimit;
   },
+
+  // Find user by invitation token
+  findByInvitationToken: async function (token) {
+    try {
+      const user = await prisma.users.findFirst({
+        where: {
+          invitationToken: token,
+          isDeleted: false
+        }
+      });
+      return user;
+    } catch (error) {
+      console.error("Error finding user by invitation token:", error);
+      return null;
+    }
+  },
+
+  // Activate user account
+  activateAccount: async function (userId, updates) {
+    try {
+      await prisma.users.update({
+        where: { id: userId },
+        data: updates
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error activating account:", error);
+      return { success: false, error: error.message };
+    }
+  },
 };
 
 module.exports = { User };

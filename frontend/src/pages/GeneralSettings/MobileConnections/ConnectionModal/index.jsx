@@ -1,24 +1,19 @@
 import { X } from "@phosphor-icons/react";
 import ModalWrapper from "@/components/ModalWrapper";
-import BG from "./bg.png";
 import { QRCodeSVG } from "qrcode.react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import MobileConnection from "@/models/mobile";
 import PreLoader from "@/components/Preloader";
-import Logo from "@/media/logo/anything-llm-infinity.png";
 
 export default function MobileConnectModal({ isOpen, onClose }) {
   return (
     <ModalWrapper isOpen={isOpen}>
       <div
-        className="relative w-full rounded-lg shadow"
+        className="relative w-full rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-800 to-black"
         style={{
           minHeight: "60vh",
           maxWidth: "70vw",
-          backgroundImage: `url(${BG})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
         }}
       >
         <button
@@ -136,14 +131,7 @@ const ConnectionQrCode = ({ isOpen }) => {
       bgColor="transparent"
       fgColor="white"
       level="L"
-      imageSettings={{
-        src: Logo,
-        x: 300 / 2 - size.width / 2,
-        y: 300 / 2 - size.height / 2,
-        height: size.height,
-        width: size.width,
-        excavate: true,
-      }}
+      imageSettings={null}
     />
   );
 };

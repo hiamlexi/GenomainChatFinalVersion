@@ -1,8 +1,4 @@
 import { createContext, useEffect, useState } from "react";
-// import Genomain from "./media/logo/genomain.png";
-// import GenomainDark from "./media/logo/genomain-dark.png";
-import DefaultLoginLogoLight from "./media/illustrations/login-logo.svg";
-import DefaultLoginLogoDark from "./media/illustrations/login-logo-light.svg";
 import System from "./models/system";
 
 export const REFETCH_LOGO_EVENT = "refetch-logo";
@@ -12,10 +8,6 @@ export function LogoProvider({ children }) {
   const [logo, setLogo] = useState("");
   const [loginLogo, setLoginLogo] = useState("");
   const [isCustomLogo, setIsCustomLogo] = useState(false);
-  const DefaultLoginLogo =
-    localStorage.getItem("theme") !== "default"
-      ? DefaultLoginLogoDark
-      : DefaultLoginLogoLight;
 
   async function fetchInstanceLogo() {
     try {
@@ -28,13 +20,13 @@ export function LogoProvider({ children }) {
       } else {
         // Use text instead of the default Genomain logo
         setLogo("text:GenomainAB");
-        setLoginLogo(DefaultLoginLogo);
+        setLoginLogo("text:GenomainAB");
         setIsCustomLogo(false);
       }
     } catch (err) {
       // Use text instead of logo
       setLogo("text:GenomainAB");
-      setLoginLogo(DefaultLoginLogo);
+      setLoginLogo("text:GenomainAB");
       setIsCustomLogo(false);
       console.error("Failed to fetch logo:", err);
     }

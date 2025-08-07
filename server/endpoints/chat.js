@@ -49,13 +49,17 @@ function chatEndpoints(app) {
         response.flushHeaders();
 
         if (multiUserMode(response) && !(await User.canSendChat(user))) {
+          const quotaMessage = user.dailyMessageLimit === null 
+            ? "Chat service is temporarily unavailable. Please try again later."
+            : `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`;
+          
           writeResponseChunk(response, {
             id: uuidv4(),
             type: "abort",
             textResponse: null,
             sources: [],
             close: true,
-            error: `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`,
+            error: quotaMessage,
           });
           return;
         }
@@ -136,13 +140,17 @@ function chatEndpoints(app) {
         response.flushHeaders();
 
         if (multiUserMode(response) && !(await User.canSendChat(user))) {
+          const quotaMessage = user.dailyMessageLimit === null 
+            ? "Chat service is temporarily unavailable. Please try again later."
+            : `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`;
+          
           writeResponseChunk(response, {
             id: uuidv4(),
             type: "abort",
             textResponse: null,
             sources: [],
             close: true,
-            error: `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`,
+            error: quotaMessage,
           });
           return;
         }

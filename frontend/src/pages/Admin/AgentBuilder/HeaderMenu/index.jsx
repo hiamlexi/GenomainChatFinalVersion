@@ -1,5 +1,4 @@
 import { CaretDown, CaretUp, Plus, CaretLeft } from "@phosphor-icons/react";
-import AnythingInfinityLogo from "@/media/logo/anything-llm-infinity.png";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import paths from "@/utils/paths";
@@ -53,11 +52,7 @@ export default function HeaderMenu({
               onClick={() => navigate(paths.settings.agentSkills())}
               className="!border-t-transparent !border-l-transparent !border-b-transparent flex items-center gap-x-2 px-4 py-2 border-r border-white/10 hover:bg-theme-action-menu-bg transition-colors duration-300"
             >
-              <img
-                src={AnythingInfinityLogo}
-                alt="logo"
-                className="w-[20px] light:invert"
-              />
+              <div className="w-[20px] h-[20px] bg-theme-text-primary rounded flex items-center justify-center text-xs font-bold">B</div>
               <span className="text-theme-text-primary text-sm uppercase tracking-widest">
                 Builder
               </span>

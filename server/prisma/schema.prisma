@@ -59,7 +59,7 @@ model system_settings {
 
 model users {
   id                          Int                           @id @default(autoincrement())
-  username                    String?                       @unique
+  username                    String                        @unique
   password                    String
   pfpFilename                 String?
   role                        String                        @default("default")
@@ -67,11 +67,11 @@ model users {
   seen_recovery_codes         Boolean?                      @default(false)
   createdAt                   DateTime                      @default(now())
   lastUpdatedAt               DateTime                      @default(now())
-  dailyMessageLimit           Int?
+  dailyMessageLimit           Int?                          @default(1000)
   bio                         String?                       @default("")
   
   // AdminSystem specific fields
-  email                       String?                       @unique
+  email                       String                        @unique
   name                        String?
   companyId                   String?
   agentId                     String?
@@ -80,6 +80,14 @@ model users {
   files                       String?                       // JSON string array
   urls                        String?                       // JSON string array
   isDeleted                   Boolean                       @default(false)
+  
+  // Invitation system fields
+  status                      String                        @default("pending") // pending, active, suspended, deleted
+  invitationToken             String?                       @unique
+  invitationSentAt            DateTime?
+  invitationExpiresAt         DateTime?
+  activatedAt                 DateTime?
+  mustResetPassword           Boolean                       @default(false)
   
   // Relations
   workspace_chats             workspace_chats[]

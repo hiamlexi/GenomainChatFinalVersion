@@ -39,7 +39,7 @@ class MetaGenerator {
     return [
       {
         tag: "link",
-        props: { type: "image/svg+xml", href: "/favicon.png" },
+        props: { rel: "icon", type: "image/svg+xml", href: "/gm-logo.svg" },
         content: null,
       },
       {
@@ -124,8 +124,8 @@ class MetaGenerator {
         },
       },
 
-      { tag: "link", props: { rel: "icon", href: "/favicon.png" } },
-      { tag: "link", props: { rel: "apple-touch-icon", href: "/favicon.png" } },
+      { tag: "link", props: { rel: "icon", href: "/gm-logo.svg" } },
+      { tag: "link", props: { rel: "apple-touch-icon", href: "/gm-logo.svg" } },
     ];
   }
 
@@ -156,12 +156,12 @@ class MetaGenerator {
   }
 
   #validUrl(faviconUrl = null) {
-    if (faviconUrl === null) return "/favicon.png";
+    if (faviconUrl === null) return "/gm-logo.svg";
     try {
       const url = new URL(faviconUrl);
       return url.toString();
     } catch {
-      return "/favicon.png";
+      return "/gm-logo.svg";
     }
   }
 

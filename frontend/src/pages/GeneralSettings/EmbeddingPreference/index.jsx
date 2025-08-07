@@ -3,7 +3,6 @@ import Sidebar from "@/components/SettingsSidebar";
 import { isMobile } from "react-device-detect";
 import System from "@/models/system";
 import showToast from "@/utils/toast";
-import AnythingLLMIcon from "@/media/logo/anything-llm-icon.png";
 import OpenAiLogo from "@/media/llmprovider/openai.png";
 import AzureOpenAiLogo from "@/media/llmprovider/azure.png";
 import GeminiAiLogo from "@/media/llmprovider/gemini.png";
@@ -42,7 +41,7 @@ const EMBEDDERS = [
   {
     name: "AnythingLLM Embedder",
     value: "native",
-    logo: AnythingLLMIcon,
+    logo: null,
     options: (settings) => <NativeEmbeddingOptions settings={settings} />,
     description:
       "Use the built-in embedding provider for AnythingLLM. Zero setup!",

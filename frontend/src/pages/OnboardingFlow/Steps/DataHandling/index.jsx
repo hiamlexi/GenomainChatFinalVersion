@@ -1,6 +1,5 @@
 import PreLoader from "@/components/Preloader";
 import System from "@/models/system";
-import AnythingLLMIcon from "@/media/logo/anything-llm-icon.png";
 import OpenAiLogo from "@/media/llmprovider/openai.png";
 import GenericOpenAiLogo from "@/media/llmprovider/generic-openai.png";
 import AzureOpenAiLogo from "@/media/llmprovider/azure.png";
@@ -329,7 +328,7 @@ export const EMBEDDING_ENGINE_PRIVACY = {
     description: [
       "Your document text is embedded privately on this instance of Genomain",
     ],
-    logo: AnythingLLMIcon,
+    logo: null,
   },
   openai: {
     name: "OpenAI",
@@ -419,21 +418,21 @@ export const FALLBACKS = {
     description: [
       `"${provider}" has no known data handling policy defined in Genomain`,
     ],
-    logo: AnythingLLMIcon,
+    logo: null,
   }),
   EMBEDDING: (provider) => ({
     name: "Unknown",
     description: [
       `"${provider}" has no known data handling policy defined in Genomain`,
     ],
-    logo: AnythingLLMIcon,
+    logo: null,
   }),
   VECTOR: (provider) => ({
     name: "Unknown",
     description: [
       `"${provider}" has no known data handling policy defined in Genomain`,
     ],
-    logo: AnythingLLMIcon,
+    logo: null,
   }),
 };
 

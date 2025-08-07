@@ -62,6 +62,7 @@ async function userFromSession(request, response = null) {
         username: validation.user.username,
         email: validation.user.email,
         role: validation.user.role,
+        dailyMessageLimit: validation.user.dailyMessageLimit,
         suspended: validation.user.suspended || false,
       };
     } catch (error) {

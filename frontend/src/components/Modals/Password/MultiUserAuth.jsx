@@ -32,51 +32,49 @@ const RecoveryForm = ({ onSubmit, setShowRecoveryForm }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center relative rounded-2xl border-none bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-8 px-0 py-4 w-full md:w-fit mt-10 md:mt-0"
+      className="flex flex-col justify-center items-center relative p-8 md:p-12 w-full md:w-[400px]"
     >
-      <div className="flex items-start justify-between pt-11 pb-9 w-screen md:w-full md:px-12 px-6 ">
+      <div className="flex items-start justify-between pb-6 w-full">
         <div className="flex flex-col gap-y-4 w-full">
-          <h3 className="text-4xl md:text-lg font-bold text-theme-text-primary text-center md:text-left">
-            {t("login.password-reset.title")}
+          <h3 className="text-2xl font-bold text-white text-center">
+            Password Reset
           </h3>
-          <p className="text-sm text-theme-text-secondary md:text-left md:max-w-[300px] px-4 md:px-0 text-center">
-            {t("login.password-reset.description")}
+          <p className="text-sm text-gray-400 text-center">
+            Enter your username and recovery codes to reset your password
           </p>
         </div>
       </div>
-      <div className="md:px-12 px-6 space-y-6 flex h-full w-full">
+      <div className="space-y-4 flex h-full w-full">
         <div className="w-full flex flex-col gap-y-4">
           <div className="flex flex-col gap-y-2">
-            <label className="text-white text-sm font-bold">
-              {t("login.multi-user.placeholder-username")}
+            <label className="text-white text-sm font-medium">
+              Username
             </label>
             <input
               name="username"
               type="text"
-              placeholder={t("login.multi-user.placeholder-username")}
+              placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
               required
             />
           </div>
           <div className="flex flex-col gap-y-2">
-            <label className="text-white text-sm font-bold">
-              {t("login.password-reset.recovery-codes")}
+            <label className="text-white text-sm font-medium">
+              Recovery Codes
             </label>
             {recoveryCodeInputs.map((code, index) => (
               <div key={index}>
                 <input
                   type="text"
                   name={`recoveryCode${index + 1}`}
-                  placeholder={t("login.password-reset.recovery-code", {
-                    index: index + 1,
-                  })}
+                  placeholder={`Recovery code ${index + 1}`}
                   value={code}
                   onChange={(e) =>
                     handleRecoveryCodeChange(index, e.target.value)
                   }
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
                   required
                 />
               </div>
@@ -84,19 +82,19 @@ const RecoveryForm = ({ onSubmit, setShowRecoveryForm }) => {
           </div>
         </div>
       </div>
-      <div className="flex items-center md:p-12 md:px-0 px-6 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
+      <div className="flex items-center mt-6 w-full flex-col gap-y-4">
         <button
           type="submit"
-          className="md:text-primary-button md:bg-transparent md:w-[300px] text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200"
         >
-          {t("login.password-reset.title")}
+          Reset Password
         </button>
         <button
           type="button"
-          className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline -mb-8"
+          className="text-gray-400 text-sm hover:text-white transition-colors"
           onClick={() => setShowRecoveryForm(false)}
         >
-          {t("login.password-reset.back-to-login")}
+          Back to login
         </button>
       </div>
     </form>
@@ -115,19 +113,19 @@ const ResetPasswordForm = ({ onSubmit }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center relative rounded-2xl bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-8 px-0 py-4 w-full md:w-fit mt-10 md:mt-0"
+      className="flex flex-col justify-center items-center relative p-8 md:p-12 w-full md:w-[400px]"
     >
-      <div className="flex items-start justify-between pt-11 pb-9 w-screen md:w-full md:px-12 px-6">
+      <div className="flex items-start justify-between pb-6 w-full">
         <div className="flex flex-col gap-y-4 w-full">
-          <h3 className="text-4xl md:text-2xl font-bold text-white text-center md:text-left">
+          <h3 className="text-2xl font-bold text-white text-center">
             Reset Password
           </h3>
-          <p className="text-sm text-white/90 md:text-left md:max-w-[300px] px-4 md:px-0 text-center">
-            Enter your new password.
+          <p className="text-sm text-gray-400 text-center">
+            Enter your new password
           </p>
         </div>
       </div>
-      <div className="md:px-12 px-6 space-y-6 flex h-full w-full">
+      <div className="space-y-4 flex h-full w-full">
         <div className="w-full flex flex-col gap-y-4">
           <div>
             <input
@@ -136,7 +134,7 @@ const ResetPasswordForm = ({ onSubmit }) => {
               placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-white placeholder:text-theme-settings-input-placeholder text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
               required
             />
           </div>
@@ -147,16 +145,16 @@ const ResetPasswordForm = ({ onSubmit }) => {
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-white placeholder:text-theme-settings-input-placeholder text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
               required
             />
           </div>
         </div>
       </div>
-      <div className="flex items-center md:p-12 md:px-0 px-6 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
+      <div className="flex items-center mt-6 w-full flex-col gap-y-4">
         <button
           type="submit"
-          className="md:text-primary-button md:bg-transparent md:w-[300px] text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200"
         >
           Reset Password
         </button>
@@ -281,65 +279,56 @@ export default function MultiUserAuth() {
   return (
     <>
       <form onSubmit={handleLogin}>
-        <div className="flex flex-col justify-center items-center relative rounded-2xl bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-12 py-12 -mt-4 md:mt-0">
-          <div className="flex items-start justify-between pt-11 pb-9 rounded-t">
-            <div className="flex items-center flex-col gap-y-4">
-              <div className="flex gap-x-1">
-                <h3 className="text-md md:text-2xl font-bold text-white text-center white-space-nowrap hidden md:block">
-                  {t("login.multi-user.welcome")}
-                </h3>
-                <p className="text-4xl md:text-2xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
-                  {customAppName || "GenomainAB"}
-                </p>
-              </div>
-              <p className="text-sm text-theme-text-secondary text-center">
-                {t("login.sign-in.start")} {customAppName || "GenomainAB"}{" "}
-                {t("login.sign-in.end")}
+        <div className="flex flex-col justify-center items-center relative p-8 md:p-12 w-full md:w-[400px]">
+          <div className="flex items-start justify-between pb-6 rounded-t w-full">
+            <div className="flex items-center flex-col gap-y-4 w-full">
+              <h3 className="text-2xl font-bold text-white text-center">
+                Welcome to {customAppName || "GenomainAB"}
+              </h3>
+              <p className="text-sm text-gray-400 text-center">
+                Sign in to continue to your workspace
               </p>
             </div>
           </div>
-          <div className="w-full px-4 md:px-12">
+          <div className="w-full">
             <div className="w-full flex flex-col gap-y-4">
-              <div className="w-screen md:w-full md:px-0 px-6">
+              <div className="w-full">
                 <input
                   name="username"
                   type="text"
-                  placeholder={t("login.multi-user.placeholder-username")}
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+                  placeholder="Username"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
                   required={true}
                   autoComplete="off"
                 />
               </div>
-              <div className="w-screen md:w-full md:px-0 px-6">
+              <div className="w-full">
                 <input
                   name="password"
                   type="password"
-                  placeholder={t("login.multi-user.placeholder-password")}
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+                  placeholder="Password"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
                   required={true}
                   autoComplete="off"
                 />
               </div>
-              {error && <p className="text-red-400 text-sm">Error: {error}</p>}
+              {error && <p className="text-red-400 text-sm text-center">Error: {error}</p>}
             </div>
           </div>
-          <div className="flex items-center md:p-12 px-10 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
+          <div className="flex items-center mt-6 w-full flex-col gap-y-4">
             <button
               disabled={loading}
               type="submit"
-              className="md:text-primary-button md:bg-transparent text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading
-                ? t("login.multi-user.validating")
-                : t("login.multi-user.login")}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
             <button
               type="button"
-              className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline"
+              className="text-gray-400 text-sm hover:text-white transition-colors"
               onClick={handleResetPassword}
             >
-              {t("login.multi-user.forgot-pass")}?
-              <b>{t("login.multi-user.reset")}</b>
+              Forgot password?
             </button>
           </div>
         </div>
