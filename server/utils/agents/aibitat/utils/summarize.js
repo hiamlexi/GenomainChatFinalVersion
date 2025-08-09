@@ -45,11 +45,12 @@ async function summarizeContent({
   });
 
   // This convenience function creates a document chain prompted to summarize a set of documents.
+  // Using "stuff" type instead of "map_reduce" to avoid multiple API calls
+  // This will concatenate all documents and summarize in a single call
   const chain = loadSummarizationChain(llm, {
-    type: "map_reduce",
-    combinePrompt: mapPromptTemplate,
-    combineMapPrompt: mapPromptTemplate,
-    verbose: process.env.NODE_ENV === "development",
+    type: "stuff", // Changed from "map_reduce" to "stuff" for single API call
+    prompt: mapPromptTemplate,
+    verbose: false, // Disabled verbose to avoid interference with response
   });
 
   const res = await chain.call({

@@ -95,12 +95,19 @@ const webScraping = {
               this.controller.abort();
             });
 
-            return summarizeContent({
+            const summary = await summarizeContent({
               provider: this.super.provider,
               model: this.super.model,
               controllerSignal: this.controller.signal,
               content,
             });
+            
+            // Log and return the summary with clear formatting
+            this.super.introspect(
+              `${this.caller}: Successfully summarized content from ${url}`
+            );
+            
+            return `Summary of ${url}:\n\n${summary}`;
           },
         });
       },
