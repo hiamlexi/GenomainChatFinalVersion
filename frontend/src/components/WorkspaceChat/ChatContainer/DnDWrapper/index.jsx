@@ -71,26 +71,33 @@ export function DnDFileUploaderProvider({ workspace, children }) {
 
   /**
    * Turns files into attachments we can send as body request to backend
-   * for a chat.
-   * @returns {{name:string,mime:string,contentString:string}[]}
+   * for a chat. For text documents, we extract the text content.
+   * @returns {{attachments: {name:string,mime:string,contentString:string}[], textContent: string}}
    */
   function parseAttachments() {
-    return (
-      files
-        ?.filter((file) => file.type === "attachment")
-        ?.map(
-          (
-            /** @type {Attachment} */
-            attachment
-          ) => {
-            return {
-              name: attachment.file.name,
-              mime: attachment.file.type,
-              contentString: attachment.contentString,
-            };
-          }
-        ) || []
-    );
+    const attachments = [];
+    let extractedTextContent = "";
+    
+    for (const file of files || []) {
+      if (file.type === "attachment" && file.status === "success") {
+        // Check if this is a text document with extracted content
+        if (file.contentString && 
+            !file.contentString.startsWith('data:') && 
+            isTextDocument(file.file)) {
+          // This is extracted text - add it to the message content instead of attachments
+          extractedTextContent += `\n\n--- Content from ${file.file.name} ---\n${file.contentString}\n--- End of ${file.file.name} ---\n`;
+        } else if (file.contentString && file.contentString.startsWith('data:image/')) {
+          // This is an image attachment - keep it as an attachment
+          attachments.push({
+            name: file.file.name,
+            mime: file.file.type,
+            contentString: file.contentString,
+          });
+        }
+      }
+    }
+    
+    return { attachments, textContent: extractedTextContent };
   }
 
   /**

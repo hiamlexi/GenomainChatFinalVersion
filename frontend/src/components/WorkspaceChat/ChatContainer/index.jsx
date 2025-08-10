@@ -62,18 +62,23 @@ export default function ChatContainer({ workspace, knownHistory = [] }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!message || message === "") return false;
+    
+    // Parse attachments and extract text content
+    const { attachments, textContent } = parseAttachments();
+    const messageWithExtractedText = message + textContent;
+    
     const prevChatHistory = [
       ...chatHistory,
       {
-        content: message,
+        content: messageWithExtractedText,
         role: "user",
-        attachments: parseAttachments(),
+        attachments: attachments, // Only image attachments
       },
       {
         content: "",
         role: "assistant",
         pending: true,
-        userMessage: message,
+        userMessage: messageWithExtractedText,
         animate: true,
       },
     ];
@@ -203,13 +208,25 @@ export default function ChatContainer({ workspace, knownHistory = [] }) {
 
       // If running and edit or regeneration, this history will already have attachments
       // so no need to parse the current state.
-      const attachments = promptMessage?.attachments ?? parseAttachments();
+      let attachments, finalPrompt;
+      if (promptMessage?.attachments) {
+        // Using existing attachments from regeneration/edit
+        attachments = promptMessage.attachments;
+        finalPrompt = promptMessage.userMessage;
+      } else {
+        // Parse new attachments
+        const parsed = parseAttachments();
+        attachments = parsed.attachments;
+        // Add extracted text to the prompt
+        finalPrompt = promptMessage.userMessage + parsed.textContent;
+      }
+      
       window.dispatchEvent(new CustomEvent(CLEAR_ATTACHMENTS_EVENT));
 
       await Workspace.multiplexStream({
         workspaceSlug: workspace.slug,
         threadSlug,
-        prompt: promptMessage.userMessage,
+        prompt: finalPrompt,
         chatHandler: (chatResult) =>
           handleChat(
             chatResult,

@@ -66,38 +66,17 @@ class AnthropicLLM {
       return userPrompt;
     }
 
-    let combinedPrompt = userPrompt;
     const content = [{ type: "text", text: userPrompt }];
-    const imageAttachments = [];
-    
-    // Separate text and image attachments
     for (let attachment of attachments) {
-      if (attachment.contentString) {
-        if (attachment.contentString.startsWith('data:image/')) {
-          // Image attachment
-          imageAttachments.push({
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: attachment.mime,
-              data: attachment.contentString.split("base64,")[1],
-            },
-          });
-        } else if (!attachment.contentString.startsWith('data:')) {
-          // Text attachment - append extracted text to the prompt
-          combinedPrompt += `\n\n--- Content from ${attachment.name || 'uploaded file'} ---\n${attachment.contentString}\n--- End of content ---`;
-        }
-      }
+      content.push({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: attachment.mime,
+          data: attachment.contentString.split("base64,")[1],
+        },
+      });
     }
-    
-    // If we have text attachments, update the text content
-    if (combinedPrompt !== userPrompt) {
-      content[0] = { type: "text", text: combinedPrompt };
-    }
-    
-    // Add image attachments
-    content.push(...imageAttachments);
-    
     return content.flat();
   }
 
