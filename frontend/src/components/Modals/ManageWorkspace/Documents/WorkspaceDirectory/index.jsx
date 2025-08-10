@@ -11,6 +11,7 @@ import Workspace from "@/models/workspace";
 import { Tooltip } from "react-tooltip";
 import { safeJsonParse } from "@/utils/request";
 import { useTranslation } from "react-i18next";
+import showToast from "@/utils/toast";
 
 function WorkspaceDirectory({
   workspace,
@@ -68,14 +69,24 @@ function WorkspaceDirectory({
     });
 
     try {
-      await Workspace.modifyEmbeddings(workspace.slug, {
+      const result = await Workspace.modifyEmbeddings(workspace.slug, {
         adds: [],
         deletes: itemsToRemove,
       });
+      
+      if (result.message && !result.workspace) {
+        showToast(`Failed to remove documents: ${result.message}`, "error");
+        setLoadingMessage("");
+        setLoading(false);
+        return;
+      }
+      
       await fetchKeys(true);
       setSelectedItems({});
+      showToast("Documents removed successfully", "success");
     } catch (error) {
       console.error("Failed to remove documents:", error);
+      showToast(`Failed to remove documents: ${error.message}`, "error");
     }
 
     setLoadingMessage("");

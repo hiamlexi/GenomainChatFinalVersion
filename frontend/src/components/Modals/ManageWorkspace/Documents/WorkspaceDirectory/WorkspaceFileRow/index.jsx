@@ -29,13 +29,23 @@ export default function WorkspaceFileRow({
 
     try {
       setLoadingMessage(`Removing file from workspace`);
-      await Workspace.modifyEmbeddings(workspace.slug, {
+      const result = await Workspace.modifyEmbeddings(workspace.slug, {
         adds: [],
         deletes: [`${folderName}/${item.name}`],
       });
+      
+      if (result.message && !result.workspace) {
+        showToast(`Failed to remove document: ${result.message}`, "error");
+        setLoadingMessage("");
+        setLoading(false);
+        return;
+      }
+      
       await fetchKeys(true);
+      showToast("Document removed successfully", "success");
     } catch (error) {
       console.error("Failed to remove document:", error);
+      showToast(`Failed to remove document: ${error.message}`, "error");
     }
     setSelectedItems({});
     setLoadingMessage("");

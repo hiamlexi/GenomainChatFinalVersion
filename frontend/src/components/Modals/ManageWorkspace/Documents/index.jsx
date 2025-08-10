@@ -15,7 +15,7 @@ const MODEL_COSTS = {
   "text-embedding-3-large": 0.00000013, // $0.00013 / 1K tokens
 };
 
-export default function DocumentSettings({ workspace, systemSettings }) {
+export default function DocumentSettings({ workspace, systemSettings, onWorkspaceUpdate }) {
   const [highlightWorkspace, setHighlightWorkspace] = useState(false);
   const [availableDocs, setAvailableDocs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,11 @@ export default function DocumentSettings({ workspace, systemSettings }) {
     const currentWorkspace = refetchWorkspace
       ? await Workspace.bySlug(workspace.slug)
       : workspace;
+    
+    // Update parent workspace state if we refetched
+    if (refetchWorkspace && onWorkspaceUpdate) {
+      onWorkspaceUpdate(currentWorkspace);
+    }
 
     const documentsInWorkspace =
       currentWorkspace.documents.map((doc) => doc.docpath) || [];
@@ -224,6 +229,7 @@ export default function DocumentSettings({ workspace, systemSettings }) {
         saveChanges={updateWorkspace}
         embeddingCosts={embeddingsCost}
         movedItems={movedItems}
+        onWorkspaceUpdate={onWorkspaceUpdate}
       />
     </div>
   );

@@ -94,18 +94,20 @@ const ManageWorkspace = ({ hideModal = noop, providedSlug = null }) => {
             </button>
           </div>
 
-          {user?.role !== "default" && (
+          {/* Temporarily hide Data Connectors tab */}
+          {/* {user?.role !== "default" && (
             <ModalTabSwitcher
               selectedTab={selectedTab}
               setSelectedTab={setSelectedTab}
             />
-          )}
+          )} */}
 
-          {selectedTab === "documents" ? (
-            <DocumentSettings workspace={workspace} systemSettings={settings} />
-          ) : (
-            <DataConnectors workspace={workspace} systemSettings={settings} />
-          )}
+          {/* Only show Documents section */}
+          <DocumentSettings 
+            workspace={workspace} 
+            systemSettings={settings}
+            onWorkspaceUpdate={setWorkspace}
+          />
         </div>
       </div>
     </div>

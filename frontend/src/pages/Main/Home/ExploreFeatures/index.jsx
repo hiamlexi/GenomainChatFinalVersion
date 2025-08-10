@@ -21,22 +21,6 @@ export default function ExploreFeatures() {
 
   const buildAgentFlow = () => navigate(paths.agents.builder());
 
-  const setSystemPrompt = async () => {
-    const workspaces = await Workspace.all();
-    if (workspaces.length > 0) {
-      const firstWorkspace = workspaces[0];
-      navigate(
-        paths.workspace.settings.chatSettings(firstWorkspace.slug, {
-          search: { action: "focus-system-prompt" },
-        })
-      );
-    }
-  };
-
-  const managePromptVariables = () => {
-    navigate(paths.settings.systemPromptVariables());
-  };
-
   return (
     <div>
       <h1 className="text-theme-home-text uppercase text-sm font-semibold mb-4">
@@ -56,21 +40,6 @@ export default function ExploreFeatures() {
           )}
           onPrimaryAction={chatWithAgent}
           onSecondaryAction={buildAgentFlow}
-          isNew={true}
-        />
-        <FeatureCard
-          title={t("main-page.exploreMore.features.systemPrompts.title")}
-          description={t(
-            "main-page.exploreMore.features.systemPrompts.description"
-          )}
-          primaryAction={t(
-            "main-page.exploreMore.features.systemPrompts.primaryAction"
-          )}
-          secondaryAction={t(
-            "main-page.exploreMore.features.systemPrompts.secondaryAction"
-          )}
-          onPrimaryAction={setSystemPrompt}
-          onSecondaryAction={managePromptVariables}
           isNew={true}
         />
       </div>

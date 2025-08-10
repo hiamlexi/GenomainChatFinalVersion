@@ -10,8 +10,10 @@ import ChatModeSelection from "./ChatModeSelection";
 import WorkspaceLLMSelection from "./WorkspaceLLMSelection";
 import ChatQueryRefusalResponse from "./ChatQueryRefusalResponse";
 import CTAButton from "@/components/lib/CTAButton";
+import useUser from "@/hooks/useUser";
 
 export default function ChatSettings({ workspace }) {
+  const { user } = useUser();
   const [settings, setSettings] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -60,11 +62,13 @@ export default function ChatSettings({ workspace }) {
             </CTAButton>
           </div>
         )}
-        <WorkspaceLLMSelection
-          settings={settings}
-          workspace={workspace}
-          setHasChanges={setHasChanges}
-        />
+        {user?.role !== "manager" && (
+          <WorkspaceLLMSelection
+            settings={settings}
+            workspace={workspace}
+            setHasChanges={setHasChanges}
+          />
+        )}
         <ChatModeSelection
           workspace={workspace}
           setHasChanges={setHasChanges}
@@ -73,10 +77,12 @@ export default function ChatSettings({ workspace }) {
           workspace={workspace}
           setHasChanges={setHasChanges}
         />
-        <ChatPromptSettings
-          workspace={workspace}
-          setHasChanges={setHasChanges}
-        />
+        {user?.role !== "manager" && (
+          <ChatPromptSettings
+            workspace={workspace}
+            setHasChanges={setHasChanges}
+          />
+        )}
         <ChatQueryRefusalResponse
           workspace={workspace}
           setHasChanges={setHasChanges}

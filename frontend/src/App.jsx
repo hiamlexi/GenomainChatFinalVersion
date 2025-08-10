@@ -194,7 +194,7 @@ export default function App() {
                   <Route
                     path="/settings/browser-extension"
                     element={
-                      <ManagerRoute Component={GeneralBrowserExtension} />
+                      <AdminRoute Component={GeneralBrowserExtension} />
                     }
                   />
                   <Route
