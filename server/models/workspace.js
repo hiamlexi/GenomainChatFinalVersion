@@ -193,10 +193,54 @@ const Workspace = {
       slug = this.slugify(`${name}-${slugSeed}`, { lower: true });
     }
 
+    // Use the system's current LLM preference as the default for new workspaces
+    // This is what's configured in Settings -> LLM Preference
+    const systemLLMProvider = process.env.LLM_PROVIDER || "openai";
+    
+    // Get the appropriate model preference based on the provider
+    let systemLLMModel = null;
+    switch(systemLLMProvider) {
+      case "ollama":
+        systemLLMModel = process.env.OLLAMA_MODEL_PREF;
+        break;
+      case "lmstudio":
+        systemLLMModel = process.env.LMSTUDIO_MODEL_PREF;
+        break;
+      case "openai":
+        systemLLMModel = process.env.OPEN_MODEL_PREF || "gpt-3.5-turbo";
+        break;
+      case "anthropic":
+        systemLLMModel = process.env.ANTHROPIC_MODEL_PREF || "claude-3-sonnet-20240229";
+        break;
+      case "gemini":
+        systemLLMModel = process.env.GEMINI_LLM_MODEL_PREF || "gemini-pro";
+        break;
+      case "azure":
+        systemLLMModel = process.env.AZURE_OPENAI_MODEL_PREF;
+        break;
+      case "groq":
+        systemLLMModel = process.env.GROQ_MODEL_PREF;
+        break;
+      case "mistral":
+        systemLLMModel = process.env.MISTRAL_MODEL_PREF;
+        break;
+      default:
+        systemLLMModel = process.env[`${systemLLMProvider.toUpperCase()}_MODEL_PREF`];
+    }
+    
+    // Set both chat and agent to use the same system defaults
+    const defaultConfig = {
+      chatProvider: systemLLMProvider,
+      chatModel: systemLLMModel,
+      agentProvider: systemLLMProvider,
+      agentModel: systemLLMModel,
+    };
+
     try {
       const workspace = await prisma.workspaces.create({
         data: {
           name: this.validations.name(name),
+          ...defaultConfig,
           ...this.validateFields(additionalFields),
           slug,
         },

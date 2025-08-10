@@ -9,6 +9,14 @@ const KEY_MAPPING = {
     envKey: "LLM_PROVIDER",
     checks: [isNotEmpty, supportedLLM],
   },
+  AgentLLMProvider: {
+    envKey: "AGENT_LLM_PROVIDER",
+    checks: [],
+  },
+  AgentLLMModel: {
+    envKey: "AGENT_LLM_MODEL",
+    checks: [],
+  },
   // OpenAI Settings
   OpenAiKey: {
     envKey: "OPEN_AI_KEY",

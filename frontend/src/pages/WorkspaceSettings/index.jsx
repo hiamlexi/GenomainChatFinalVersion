@@ -9,7 +9,6 @@ import {
   ArrowUUpLeft,
   ChatText,
   Database,
-  Robot,
   User,
   Wrench,
 } from "@phosphor-icons/react";
@@ -20,7 +19,6 @@ import GeneralAppearance from "./GeneralAppearance";
 import ChatSettings from "./ChatSettings";
 import VectorDatabase from "./VectorDatabase";
 import Members from "./Members";
-import WorkspaceAgentConfiguration from "./AgentConfig";
 import useUser from "@/hooks/useUser";
 import { useTranslation } from "react-i18next";
 import System from "@/models/system";
@@ -30,7 +28,6 @@ const TABS = {
   "chat-settings": ChatSettings,
   "vector-database": VectorDatabase,
   members: Members,
-  "agent-config": WorkspaceAgentConfiguration,
 };
 
 export default function WorkspaceSettings() {
@@ -109,12 +106,6 @@ function ShowWorkspaceChat() {
             icon={<User className="h-6 w-6" />}
             to={paths.workspace.settings.members(slug)}
             visible={user?.role === "admin"}
-          />
-          <TabItem
-            title={t("workspaces—settings.agent")}
-            icon={<Robot className="h-6 w-6" />}
-            to={paths.workspace.settings.agentConfig(slug)}
-            visible={user?.role !== "manager"}
           />
         </div>
         <div className="px-16 py-6">

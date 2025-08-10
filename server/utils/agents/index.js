@@ -283,12 +283,12 @@ class AgentHandler {
    * Attempts to find a fallback provider and model to use if the workspace
    * does not have an explicit `agentProvider` and `agentModel` set.
    * 1. Fallback to the workspace `chatProvider` and `chatModel` if they exist.
-   * 2. Fallback to the system `LLM_PROVIDER` and try to load the associated default model via ENV params or a base available model.
+   * 2. Fallback to the system `LLM_PROVIDER` (from LLM Preference settings)
    * 3. Otherwise, return null - will likely throw an error the user can act on.
    * @returns {object|null} - An object with provider and model keys.
    */
   #getFallbackProvider() {
-    // First, fallback to the workspace chat provider and model if they exist
+    // First, try to use the workspace's chat provider if set
     if (
       this.invocation.workspace.chatProvider &&
       this.invocation.workspace.chatModel
@@ -299,8 +299,17 @@ class AgentHandler {
       };
     }
 
-    // If workspace does not have chat provider and model fallback
-    // to system provider and try to load provider default model
+    // Try to use the system-level Agent LLM settings if configured
+    const systemAgentProvider = process.env.AGENT_LLM_PROVIDER;
+    const systemAgentModel = process.env.AGENT_LLM_MODEL;
+    if (systemAgentProvider && systemAgentProvider !== "none" && systemAgentModel) {
+      return {
+        provider: systemAgentProvider,
+        model: systemAgentModel,
+      };
+    }
+
+    // Fallback to system LLM preference (what's set in Settings -> LLM Preference)
     const systemProvider = process.env.LLM_PROVIDER;
     const systemModel = this.providerDefault(systemProvider);
     if (systemProvider && systemModel) {

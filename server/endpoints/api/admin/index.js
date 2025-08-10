@@ -8,6 +8,7 @@ const { WorkspaceUser } = require("../../../models/workspaceUsers");
 const { canModifyAdmin } = require("../../../utils/helpers/admin");
 const { multiUserMode, reqBody } = require("../../../utils/http");
 const { validApiKey } = require("../../../utils/middleware/validApiKey");
+const { requiresAuthForApi } = require("../../../utils/middleware/validatedRequest");
 const { 
   delegateUserCreation, 
   delegateUserList,
@@ -146,7 +147,7 @@ function apiAdminEndpoints(app) {
     }
   });
 
-  app.post("/v1/admin/users/:id", [validApiKey], async (request, response) => {
+  app.post("/v1/admin/users/:id", [validApiKey, delegateUserUpdate], async (request, response) => {
     /*
     #swagger.tags = ['Admin']
     #swagger.parameters['id'] = {
@@ -218,9 +219,74 @@ function apiAdminEndpoints(app) {
     }
   });
 
+  app.post("/v1/admin/users/:id/llm-settings", [validApiKey], async (request, response) => {
+    /*
+    #swagger.tags = ['Admin']
+    #swagger.description = 'Configure LLM provider settings for a specific user. Admin only.'
+    #swagger.parameters['id'] = {
+      in: 'path',
+      description: 'id of the user in the database.',
+      required: true,
+      type: 'string'
+    }
+    #swagger.requestBody = {
+        description: 'LLM configuration settings for the user.',
+        required: true,
+        content: {
+          "application/json": {
+            example: {
+              llmProvider: "openai",
+              llmModel: "gpt-4",
+              agentProvider: "openai",
+              agentModel: "gpt-4",
+              llmSettingsLocked: true
+            }
+          }
+        }
+      }
+    #swagger.responses[200] = {
+      content: {
+        "application/json": {
+          schema: {
+            type: 'object',
+            example: {
+              success: true,
+              error: null,
+            }
+          }
+        }
+      }
+    }
+    */
+    try {
+      if (!multiUserMode(response)) {
+        response.sendStatus(401).end();
+        return;
+      }
+
+      const { id } = request.params;
+      const updates = reqBody(request);
+      
+      // Only allow LLM-related fields to be updated through this endpoint
+      const llmFields = ['llmProvider', 'llmModel', 'agentProvider', 'agentModel', 'llmSettingsLocked'];
+      const filteredUpdates = {};
+      for (const field of llmFields) {
+        if (updates.hasOwnProperty(field)) {
+          filteredUpdates[field] = updates[field];
+        }
+      }
+
+      const { success, error } = await User.update(id, filteredUpdates);
+      response.status(200).json({ success, error });
+    } catch (e) {
+      console.error(e);
+      response.sendStatus(500).end();
+    }
+  });
+
   app.delete(
     "/v1/admin/users/:id",
-    [validApiKey],
+    [validApiKey, delegateUserDeletion],
     async (request, response) => {
       /*
     #swagger.tags = ['Admin']

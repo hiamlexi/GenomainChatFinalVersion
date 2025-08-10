@@ -91,14 +91,6 @@ export function MCPServersList({
     return (
       <div className="text-theme-text-secondary text-center text-xs flex flex-col gap-y-2">
         <p>Loading MCP Servers from configuration file...</p>
-        <a
-          href="https://docs.anythingllm.com/mcp-compatibility/overview"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-theme-text-secondary underline hover:text-cta-button"
-        >
-          Learn more about MCP Servers.
-        </a>
       </div>
     );
   }
@@ -107,14 +99,6 @@ export function MCPServersList({
     return (
       <div className="text-theme-text-secondary text-center text-xs flex flex-col gap-y-2">
         <p>No MCP servers found</p>
-        <a
-          href="https://docs.anythingllm.com/mcp-compatibility/overview"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-theme-text-secondary underline hover:text-cta-button"
-        >
-          Learn more about MCP Servers.
-        </a>
       </div>
     );
   }

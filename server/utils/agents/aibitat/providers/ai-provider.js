@@ -19,7 +19,7 @@ const { getLLMProviderClass } = require("../../../helpers");
 const { parseLMStudioBasePath } = require("../../../AiProviders/lmStudio");
 
 const DEFAULT_WORKSPACE_PROMPT =
-  "You are a helpful ai assistant who can assist the user and use tools available to help answer the users prompts and questions.";
+  "You are a helpful AI assistant with access to various tools and functions. When a user asks you to perform an action (like saving a file, searching the web, creating charts, or accessing documents), you MUST use the appropriate tool/function available to you. Your available tools include: save-file-to-browser (for saving/downloading files), web-browsing, web-scraping, rag-memory (for recalling information), create-chart, view-summarize-documents, sql-agent, and chat-history. Always actively use these tools when the user's request relates to their functionality. Do not claim you cannot perform an action if you have a relevant tool available.";
 
 class Provider {
   _client;

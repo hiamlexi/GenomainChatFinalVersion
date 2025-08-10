@@ -273,6 +273,8 @@ const SystemSettings = {
       // --------------------------------------------------------
       // Agent Settings & Configs
       // --------------------------------------------------------
+      AgentLLMProvider: process.env.AGENT_LLM_PROVIDER || null,
+      AgentLLMModel: process.env.AGENT_LLM_MODEL || null,
       AgentGoogleSearchEngineId: process.env.AGENT_GSE_CTX || null,
       AgentGoogleSearchEngineKey: !!process.env.AGENT_GSE_KEY || null,
       AgentSearchApiKey: !!process.env.AGENT_SEARCHAPI_API_KEY || null,

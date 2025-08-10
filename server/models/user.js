@@ -23,6 +23,11 @@ const User = {
     "suspended",
     "dailyMessageLimit",
     "bio",
+    "llmProvider",
+    "llmModel",
+    "agentProvider",
+    "agentModel",
+    "llmSettingsLocked",
   ],
   validations: {
     username: (newValue = "") => {
@@ -61,12 +66,33 @@ const User = {
         throw new Error("Bio cannot be longer than 1,000 characters");
       return String(bio);
     },
+    llmProvider: (value) => {
+      if (!value || typeof value !== "string" || value === "none") return null;
+      return String(value);
+    },
+    llmModel: (value) => {
+      if (!value || typeof value !== "string") return null;
+      return String(value);
+    },
+    agentProvider: (value) => {
+      if (!value || typeof value !== "string" || value === "none") return null;
+      return String(value);
+    },
+    agentModel: (value) => {
+      if (!value || typeof value !== "string") return null;
+      return String(value);
+    },
+    llmSettingsLocked: (value) => {
+      return Boolean(value);
+    },
   },
   // validations for the above writable fields.
   castColumnValue: function (key, value) {
     switch (key) {
       case "suspended":
         return Number(Boolean(value));
+      case "llmSettingsLocked":
+        return Boolean(value);
       case "dailyMessageLimit":
         return value === null ? null : Number(value);
       default:

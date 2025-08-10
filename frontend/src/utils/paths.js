@@ -114,6 +114,9 @@ export default {
     llmPreference: () => {
       return "/settings/llm-preference";
     },
+    agentLLMPreference: () => {
+      return "/settings/agent-llm-preference";
+    },
     transcriptionPreference: () => {
       return "/settings/transcription-preference";
     },

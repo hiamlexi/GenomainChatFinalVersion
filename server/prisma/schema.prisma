@@ -89,6 +89,13 @@ model users {
   activatedAt                 DateTime?
   mustResetPassword           Boolean                       @default(false)
   
+  // LLM Provider Settings (Admin-configurable)
+  llmProvider                 String?                       // Admin-set LLM provider for this user
+  llmModel                    String?                       // Admin-set LLM model for this user
+  agentProvider               String?                       // Admin-set Agent provider for this user
+  agentModel                  String?                       // Admin-set Agent model for this user
+  llmSettingsLocked           Boolean                       @default(false) // If true, user cannot override these settings
+  
   // Relations
   workspace_chats             workspace_chats[]
   workspace_users             workspace_users[]

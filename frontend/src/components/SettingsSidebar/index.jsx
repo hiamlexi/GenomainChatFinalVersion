@@ -222,6 +222,12 @@ const SidebarOptions = ({ user = null, t }) => (
               roles: ["admin"],
             },
             {
+              btnText: "Agent LLM",
+              href: paths.settings.agentLLMPreference(),
+              flex: true,
+              roles: ["admin"],
+            },
+            {
               btnText: t("settings.vector-database"),
               href: paths.settings.vectorDatabase(),
               flex: true,

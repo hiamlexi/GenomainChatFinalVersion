@@ -39,12 +39,12 @@ import MistralAiOptions from "@/components/EmbeddingSelection/MistralAiOptions";
 
 const EMBEDDERS = [
   {
-    name: "AnythingLLM Embedder",
+    name: "Built-in System Embedder",
     value: "native",
     logo: null,
     options: (settings) => <NativeEmbeddingOptions settings={settings} />,
     description:
-      "Use the built-in embedding provider for AnythingLLM. Zero setup!",
+      "Use the built-in embedding provider. Zero setup!",
   },
   {
     name: "OpenAI",
