@@ -38,15 +38,21 @@ async function validateWithAdminSystem(request, response, next) {
       return;
     }
 
+    // Get full user data from local database to ensure we have all fields
+    const { User } = require("../../models/user");
+    const fullUser = await User.get({ username: validation.user.username });
+    
     // Transform AdminSystem user to match Genomain's expected format
     const user = {
       id: validation.user.id,
       username: validation.user.username,
       email: validation.user.email,
       role: validation.user.role,
+      dailyMessageLimit: fullUser?.dailyMessageLimit !== undefined ? fullUser.dailyMessageLimit : 1000,
       suspended: false, // AdminSystem doesn't have suspended field yet
     };
-
+    
+    console.log("[validatedRequestGateway] Setting user:", user);
     response.locals.user = user;
     next();
   } catch (error) {

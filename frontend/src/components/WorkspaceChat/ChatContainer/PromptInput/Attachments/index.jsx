@@ -124,7 +124,7 @@ function AttachmentItem({ attachment }) {
               <X size={10} className="flex-shrink-0" />
             </button>
           </div>
-          {contentString ? (
+          {contentString && file.type.startsWith("image/") ? (
             <img
               alt={`Preview of ${file.name}`}
               src={contentString}
@@ -142,7 +142,8 @@ function AttachmentItem({ attachment }) {
               {file.name}
             </p>
             <p className="text-theme-attachment-text-secondary text-[10px] leading-[14px] font-medium">
-              Image attached!
+              {file.type.startsWith("image/") ? "Image attached!" : 
+               contentString && typeof contentString === 'string' && !contentString.startsWith('data:') ? "Text extracted!" : "File attached!"}
             </p>
           </div>
         </div>

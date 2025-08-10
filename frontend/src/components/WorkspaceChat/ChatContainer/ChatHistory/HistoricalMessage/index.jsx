@@ -117,22 +117,6 @@ const HistoricalMessage = ({
                 message={message}
                 expanded={isLastMessage}
               />
-              {isRefusalMessage && (
-                <Link
-                  data-tooltip-id="query-refusal-info"
-                  data-tooltip-content={`${t("chat.refusal.tooltip-description")}`}
-                  className="!no-underline group !flex w-fit"
-                  to={paths.chatModes()}
-                  target="_blank"
-                >
-                  <div className="flex flex-row items-center gap-x-1 group-hover:opacity-100 opacity-60 w-fit">
-                    <Info className="text-theme-text-secondary" />
-                    <p className="!m-0 !p-0 text-theme-text-secondary !no-underline text-xs cursor-pointer">
-                      {t("chat.refusal.tooltip-title")}
-                    </p>
-                  </div>
-                </Link>
-              )}
               <ChatAttachments attachments={attachments} />
             </div>
           )}

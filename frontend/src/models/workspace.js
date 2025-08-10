@@ -453,6 +453,25 @@ const Workspace = {
     const data = await response.json();
     return { response, data };
   },
+  /**
+   * Extract text from an uploaded file
+   * @param {string} slug - workspace slug
+   * @param {FormData} formData - FormData with file
+   * @returns {Promise<{response: Response, data: {success: boolean, error: string|null, data: {fileName: string, text: string, pageCount: number, info: object}|null}}>}
+   */
+  extractText: async function (slug, formData) {
+    const response = await fetch(
+      `${API_BASE}/workspace/${slug}/extract-text`,
+      {
+        method: "POST",
+        body: formData,
+        headers: baseHeaders(),
+      }
+    );
+
+    const data = await response.json();
+    return { response, data };
+  },
 
   /**
    * Deletes and un-embeds a single file in a single call from a workspace

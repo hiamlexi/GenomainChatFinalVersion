@@ -971,6 +971,69 @@ function workspaceEndpoints(app) {
     }
   );
 
+  /** Handles text extraction from uploaded files */
+  app.post(
+    "/workspace/:slug/extract-text",
+    [
+      validatedRequest,
+      flexUserRoleValid([ROLES.all]),
+      handleFileUpload,
+    ],
+    async function (request, response) {
+      try {
+        const { slug = null } = request.params;
+        const user = await userFromSession(request, response);
+        const currWorkspace = multiUserMode(response)
+          ? await Workspace.getWithUser(user, { slug })
+          : await Workspace.get({ slug });
+        
+        if (!currWorkspace) {
+          response.status(400).json({ success: false, error: "Workspace not found" }).end();
+          return;
+        }
+
+        const { TextExtractor } = require("../utils/files/textExtractor");
+        const { originalname, mimetype, path: filePath } = request.file;
+        
+        try {
+          const extractedData = await TextExtractor.extract(filePath, mimetype);
+          
+          // Clean up the uploaded file after extraction
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+          
+          response.status(200).json({
+            success: true,
+            error: null,
+            data: {
+              fileName: originalname,
+              text: extractedData.text,
+              pageCount: extractedData.pageCount,
+              info: extractedData.info
+            }
+          });
+        } catch (extractionError) {
+          // Clean up the uploaded file on error
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+          
+          response.status(500).json({
+            success: false,
+            error: `Failed to extract text from ${originalname}: ${extractionError.message}`
+          });
+        }
+      } catch (e) {
+        console.error("Text extraction error:", e.message, e);
+        response.status(500).json({
+          success: false,
+          error: "Internal server error during text extraction"
+        }).end();
+      }
+    }
+  );
+
   app.delete(
     "/workspace/:slug/remove-and-unembed",
     [

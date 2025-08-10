@@ -83,7 +83,7 @@ const User = {
     username,
     password,
     role = "default",
-    dailyMessageLimit = null,
+    dailyMessageLimit = 1000,
     bio = "",
   }) {
     const passwordCheck = this.checkPasswordComplexity(password);
@@ -315,9 +315,17 @@ const User = {
    */
   canSendChat: async function (user) {
     const { ROLES } = require("../utils/middleware/multiUserProtected");
-    if (!user || user.dailyMessageLimit === null || user.role === ROLES.admin)
-      return true;
-
+    console.log("[User.canSendChat] Checking user:", user?.username, "dailyMessageLimit:", user?.dailyMessageLimit, "role:", user?.role);
+    
+    // Admin users have unlimited messages
+    if (!user || user.role === ROLES.admin) return true;
+    
+    // If dailyMessageLimit is not set (undefined), use default of 1000
+    const messageLimit = user.dailyMessageLimit !== undefined ? user.dailyMessageLimit : 1000;
+    
+    // If limit is null or 0, user has unlimited messages  
+    if (messageLimit === null || messageLimit === 0) return true;
+    
     const { WorkspaceChats } = require("./workspaceChats");
     const currentChatCount = await WorkspaceChats.count({
       user_id: user.id,
@@ -325,8 +333,9 @@ const User = {
         gte: new Date(new Date() - 24 * 60 * 60 * 1000), // 24 hours
       },
     });
-
-    return currentChatCount < user.dailyMessageLimit;
+    
+    console.log("[User.canSendChat] Current chat count:", currentChatCount, "Limit:", messageLimit);
+    return currentChatCount < messageLimit;
   },
 
   // Find user by invitation token

@@ -114,13 +114,15 @@ export function DnDFileUploaderProvider({ workspace, children }) {
       } else {
         // If the user is a default user, we do not want to allow them to upload files.
         if (!!user && user.role === "default") continue;
+        // Mark text documents as attachments that need text extraction
+        const needsExtraction = isTextDocument(file);
         newAccepted.push({
           uid: v4(),
           file,
           contentString: null,
           status: "in_progress",
           error: null,
-          type: "upload",
+          type: needsExtraction ? "upload" : "upload", // Will be converted to attachment after extraction
         });
       }
     }
@@ -151,13 +153,15 @@ export function DnDFileUploaderProvider({ workspace, children }) {
       } else {
         // If the user is a default user, we do not want to allow them to upload files.
         if (!!user && user.role === "default") continue;
+        // Mark text documents as needing extraction
+        const needsExtraction = isTextDocument(file);
         newAccepted.push({
           uid: v4(),
           file,
           contentString: null,
           status: "in_progress",
           error: null,
-          type: "upload",
+          type: needsExtraction ? "upload" : "upload", // Will be converted to attachment after extraction
         });
       }
     }
@@ -167,7 +171,35 @@ export function DnDFileUploaderProvider({ workspace, children }) {
   }
 
   /**
-   * Embeds attachments that are eligible for embedding - basically files that are not images.
+   * Checks if a file is a text document that should be extracted
+   * @param {File} file
+   * @returns {boolean}
+   */
+  function isTextDocument(file) {
+    const textExtensions = [
+      '.pdf', '.txt', '.doc', '.docx', '.text', '.md', '.markdown',
+      '.log', '.csv', '.json', '.xml', '.html', '.htm'
+    ];
+    const textMimeTypes = [
+      'application/pdf',
+      'text/plain',
+      'text/csv',
+      'text/html',
+      'text/xml',
+      'application/json',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    const fileName = file.name.toLowerCase();
+    const hasTextExtension = textExtensions.some(ext => fileName.endsWith(ext));
+    const hasTextMimeType = textMimeTypes.includes(file.type);
+    
+    return hasTextExtension || hasTextMimeType;
+  }
+
+  /**
+   * Process attachments - extract text from documents or embed other files
    * @param {Attachment[]} newAttachments
    */
   function embedEligibleAttachments(newAttachments = []) {
@@ -180,29 +212,93 @@ export function DnDFileUploaderProvider({ workspace, children }) {
 
       const formData = new FormData();
       formData.append("file", attachment.file, attachment.file.name);
-      promises.push(
-        Workspace.uploadAndEmbedFile(workspace.slug, formData).then(
-          ({ response, data }) => {
+      
+      // Check if this is a text document that should have text extracted
+      if (isTextDocument(attachment.file)) {
+        // Extract text from document
+        promises.push(
+          Workspace.extractText(workspace.slug, formData).then(
+            ({ response, data }) => {
+              if (response.ok && data.success) {
+                // Convert to attachment with extracted text
+                const updates = {
+                  status: "success",
+                  error: null,
+                  type: "attachment",
+                  contentString: data.data.text,
+                  document: null,
+                };
+                
+                setFiles((prev) => {
+                  return prev.map(
+                    (/** @type {Attachment} */ prevFile) => {
+                      if (prevFile.uid !== attachment.uid) return prevFile;
+                      return { ...prevFile, ...updates };
+                    }
+                  );
+                });
+              } else {
+                // Handle extraction failure
+                const updates = {
+                  status: "failed",
+                  error: data?.error ?? "Failed to extract text",
+                  document: null,
+                };
+                
+                setFiles((prev) => {
+                  return prev.map(
+                    (/** @type {Attachment} */ prevFile) => {
+                      if (prevFile.uid !== attachment.uid) return prevFile;
+                      return { ...prevFile, ...updates };
+                    }
+                  );
+                });
+              }
+            }
+          ).catch((error) => {
+            console.error("Text extraction error:", error);
             const updates = {
-              status: response.ok ? "success" : "failed",
-              error: data?.error ?? null,
-              document: data?.document,
+              status: "failed",
+              error: "Failed to extract text from document",
+              document: null,
             };
-
+            
             setFiles((prev) => {
               return prev.map(
-                (
-                  /** @type {Attachment} */
-                  prevFile
-                ) => {
+                (/** @type {Attachment} */ prevFile) => {
                   if (prevFile.uid !== attachment.uid) return prevFile;
                   return { ...prevFile, ...updates };
                 }
               );
             });
-          }
-        )
-      );
+          })
+        );
+      } else {
+        // Original behavior - embed the file
+        promises.push(
+          Workspace.uploadAndEmbedFile(workspace.slug, formData).then(
+            ({ response, data }) => {
+              const updates = {
+                status: response.ok ? "success" : "failed",
+                error: data?.error ?? null,
+                document: data?.document,
+              };
+
+              setFiles((prev) => {
+                return prev.map(
+                  (
+                    /** @type {Attachment} */
+                    prevFile
+                  ) => {
+                    if (prevFile.uid !== attachment.uid) return prevFile;
+                    return { ...prevFile, ...updates };
+                  }
+                );
+              });
+            }
+          )
+        );
+      }
     }
 
     // Wait for all promises to resolve in some way before dispatching the event to unlock the send button

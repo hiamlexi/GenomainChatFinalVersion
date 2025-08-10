@@ -56,15 +56,25 @@ async function userFromSession(request, response = null) {
         return null;
       }
       
-      // Return user in expected format
-      return {
+      // Get the full user data from local database to ensure we have all fields
+      const fullUser = await User.get({ username: validation.user.username });
+      
+      console.log("[userFromSession] AdminSystem validation user:", validation.user);
+      console.log("[userFromSession] Local database user:", fullUser);
+      console.log("[userFromSession] dailyMessageLimit from fullUser:", fullUser?.dailyMessageLimit);
+      
+      // Return user in expected format with all necessary fields
+      const userObj = {
         id: validation.user.id,
-        username: validation.user.username,
+        username: validation.user.username,  
         email: validation.user.email,
         role: validation.user.role,
-        dailyMessageLimit: validation.user.dailyMessageLimit,
+        dailyMessageLimit: fullUser?.dailyMessageLimit !== undefined ? fullUser.dailyMessageLimit : 1000,
         suspended: validation.user.suspended || false,
       };
+      
+      console.log("[userFromSession] Returning user object:", userObj);
+      return userObj;
     } catch (error) {
       console.error("AdminSystem validation error in userFromSession:", error);
       return null;

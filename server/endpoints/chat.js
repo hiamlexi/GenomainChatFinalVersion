@@ -49,9 +49,15 @@ function chatEndpoints(app) {
         response.flushHeaders();
 
         if (multiUserMode(response) && !(await User.canSendChat(user))) {
-          const quotaMessage = user.dailyMessageLimit === null 
+          console.log("[chat.js] User object in quota check:", user);
+          console.log("[chat.js] dailyMessageLimit:", user.dailyMessageLimit);
+          
+          // Use a default of 1000 if dailyMessageLimit is undefined
+          const messageLimit = user.dailyMessageLimit !== undefined ? user.dailyMessageLimit : 1000;
+          
+          const quotaMessage = messageLimit === null || messageLimit === 0
             ? "Chat service is temporarily unavailable. Please try again later."
-            : `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`;
+            : `You have met your maximum 24 hour chat quota of ${messageLimit} chats. Try again later.`;
           
           writeResponseChunk(response, {
             id: uuidv4(),
@@ -140,9 +146,15 @@ function chatEndpoints(app) {
         response.flushHeaders();
 
         if (multiUserMode(response) && !(await User.canSendChat(user))) {
-          const quotaMessage = user.dailyMessageLimit === null 
+          console.log("[chat.js] User object in quota check:", user);
+          console.log("[chat.js] dailyMessageLimit:", user.dailyMessageLimit);
+          
+          // Use a default of 1000 if dailyMessageLimit is undefined
+          const messageLimit = user.dailyMessageLimit !== undefined ? user.dailyMessageLimit : 1000;
+          
+          const quotaMessage = messageLimit === null || messageLimit === 0
             ? "Chat service is temporarily unavailable. Please try again later."
-            : `You have met your maximum 24 hour chat quota of ${user.dailyMessageLimit} chats. Try again later.`;
+            : `You have met your maximum 24 hour chat quota of ${messageLimit} chats. Try again later.`;
           
           writeResponseChunk(response, {
             id: uuidv4(),

@@ -96,17 +96,38 @@ class OpenAiLLM {
       return userPrompt;
     }
 
+    let combinedPrompt = userPrompt;
     const content = [{ type: "text", text: userPrompt }];
+    const imageAttachments = [];
+    
+    // Separate text and image attachments
     for (let attachment of attachments) {
-      content.push({
-        type: "image_url",
-        image_url: {
-          url: attachment.contentString,
-          detail: "auto",
-        },
-      });
+      if (attachment.contentString) {
+        if (attachment.contentString.startsWith('data:image/')) {
+          // Image attachment
+          imageAttachments.push({
+            type: "image_url",
+            image_url: {
+              url: attachment.contentString,
+              detail: "auto",
+            },
+          });
+        } else if (!attachment.contentString.startsWith('data:')) {
+          // Text attachment - append extracted text to the prompt
+          combinedPrompt += `\n\n--- Content from ${attachment.name || 'uploaded file'} ---\n${attachment.contentString}\n--- End of content ---`;
+        }
+      }
     }
-    return content.flat();
+    
+    // If we have text attachments, update the text content
+    if (combinedPrompt !== userPrompt) {
+      content[0] = { type: "text", text: combinedPrompt };
+    }
+    
+    // Add image attachments
+    content.push(...imageAttachments);
+    
+    return content.length === 1 ? content[0].text : content.flat();
   }
 
   /**

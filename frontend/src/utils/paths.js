@@ -50,22 +50,22 @@ export default {
     },
   },
   github: () => {
-    return "https://github.com/Mintplex-Labs/anything-llm";
+    return "#";
   },
   discord: () => {
-    return "https://discord.com/invite/6UyHPeGZAC";
+    return "#";
   },
   docs: () => {
-    return "https://docs.anythingllm.com";
+    return "#";
   },
   chatModes: () => {
-    return "https://docs.anythingllm.com/features/chat-modes";
+    return "#";
   },
   mailToMintplex: () => {
     return "mailto:team@genomain.com";
   },
   hosting: () => {
-    return "https://my.mintplexlabs.com/aio-checkout?product=anythingllm";
+    return "#";
   },
   workspace: {
     chat: (slug, options = {}) => {
