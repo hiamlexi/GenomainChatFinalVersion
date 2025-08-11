@@ -280,26 +280,29 @@ class AgentHandler {
   }
 
   /**
-   * Attempts to find a fallback provider and model to use if the workspace
-   * does not have an explicit `agentProvider` and `agentModel` set.
-   * 1. Fallback to the workspace `chatProvider` and `chatModel` if they exist.
-   * 2. Fallback to the system `LLM_PROVIDER` (from LLM Preference settings)
-   * 3. Otherwise, return null - will likely throw an error the user can act on.
+   * Gets the provider and model to use based on admin settings
+   * For non-admin users, always use admin-configured settings
    * @returns {object|null} - An object with provider and model keys.
    */
   #getFallbackProvider() {
-    // First, try to use the workspace's chat provider if set
-    if (
-      this.invocation.workspace.chatProvider &&
-      this.invocation.workspace.chatModel
-    ) {
-      return {
-        provider: this.invocation.workspace.chatProvider,
-        model: this.invocation.workspace.chatModel,
-      };
+    const { ROLES } = require("../middleware/multiUserProtected");
+    const user = this.invocation.user;
+    const isAdmin = !user || user?.role === ROLES.admin;
+    
+    if (isAdmin) {
+      // Admin users can use workspace-specific settings
+      if (
+        this.invocation.workspace.agentProvider &&
+        this.invocation.workspace.agentModel
+      ) {
+        return {
+          provider: this.invocation.workspace.agentProvider,
+          model: this.invocation.workspace.agentModel,
+        };
+      }
     }
-
-    // Try to use the system-level Agent LLM settings if configured
+    
+    // For all users (including admins without workspace settings), use system agent settings
     const systemAgentProvider = process.env.AGENT_LLM_PROVIDER;
     const systemAgentModel = process.env.AGENT_LLM_MODEL;
     if (systemAgentProvider && systemAgentProvider !== "none" && systemAgentModel) {
@@ -309,7 +312,7 @@ class AgentHandler {
       };
     }
 
-    // Fallback to system LLM preference (what's set in Settings -> LLM Preference)
+    // Fallback to system LLM settings if agent settings not configured
     const systemProvider = process.env.LLM_PROVIDER;
     const systemModel = this.providerDefault(systemProvider);
     if (systemProvider && systemModel) {
@@ -349,8 +352,21 @@ class AgentHandler {
   }
 
   #providerSetupAndCheck() {
-    this.provider = this.invocation.workspace.agentProvider ?? null; // set provider to workspace agent provider if it exists
-    this.model = this.#fetchModel();
+    const { ROLES } = require("../middleware/multiUserProtected");
+    const user = this.invocation.user;
+    const isAdmin = !user || user?.role === ROLES.admin;
+    
+    // For non-admin users, ignore workspace settings and use system settings
+    if (!isAdmin) {
+      const fallback = this.#getFallbackProvider();
+      if (!fallback) throw new Error("No valid provider found for the agent.");
+      this.provider = fallback.provider;
+      this.model = fallback.model;
+    } else {
+      // Admin users can use workspace settings
+      this.provider = this.invocation.workspace.agentProvider ?? null;
+      this.model = this.#fetchModel();
+    }
 
     if (!this.provider)
       throw new Error("No valid provider found for the agent.");

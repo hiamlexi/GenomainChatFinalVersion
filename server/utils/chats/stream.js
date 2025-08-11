@@ -52,6 +52,7 @@ async function streamChatWithWorkspace(
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
+    user,
   });
   const VectorDb = getVectorDbClass();
 
