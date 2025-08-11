@@ -29,6 +29,7 @@ export default function DocumentSettings({ workspace, systemSettings, onWorkspac
   async function fetchKeys(refetchWorkspace = false) {
     setLoading(true);
     const localFiles = await System.localFiles();
+    
     const currentWorkspace = refetchWorkspace
       ? await Workspace.bySlug(workspace.slug)
       : workspace;
@@ -78,7 +79,7 @@ export default function DocumentSettings({ workspace, systemSettings, onWorkspac
         }
       }),
     };
-
+    
     setAvailableDocs(availableDocs);
     setWorkspaceDocs(workspaceDocs);
     setLoading(false);

@@ -6,8 +6,10 @@ import * as Skeleton from "react-loading-skeleton";
 import AddMemberModal from "./AddMemberModal";
 import WorkspaceMemberRow from "./WorkspaceMemberRow";
 import CTAButton from "@/components/lib/CTAButton";
+import useUser from "@/hooks/useUser";
 
 export default function Members({ workspace }) {
+  const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [workspaceUsers, setWorkspaceUsers] = useState([]);
@@ -78,7 +80,9 @@ export default function Members({ workspace }) {
           )}
         </tbody>
       </table>
-      <CTAButton onClick={openModal}>Manage Users</CTAButton>
+      {user?.role === "admin" && (
+        <CTAButton onClick={openModal}>Manage Users</CTAButton>
+      )}
       <ModalWrapper isOpen={isOpen}>
         <AddMemberModal
           closeModal={closeModal}

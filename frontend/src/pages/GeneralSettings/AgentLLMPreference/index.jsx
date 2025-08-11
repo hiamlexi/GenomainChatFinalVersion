@@ -1,123 +1,285 @@
-import System from "@/models/system";
-import showToast from "@/utils/toast";
-import { useEffect, useRef, useState } from "react";
-import AgentLLMSelection from "./AgentLLMSelection";
-import Admin from "@/models/admin";
-import * as Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import PreLoader from "@/components/Preloader";
+import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Sidebar from "@/components/SettingsSidebar";
 import { isMobile } from "react-device-detect";
-import ContextualSaveBar from "@/components/ContextualSaveBar";
+import System from "@/models/system";
+import showToast from "@/utils/toast";
+import PreLoader from "@/components/Preloader";
+import { AVAILABLE_LLM_PROVIDERS } from "@/pages/GeneralSettings/LLMPreference";
+import LLMItem from "@/components/LLMSelection/LLMItem";
+import { CaretUpDown, MagnifyingGlass, X } from "@phosphor-icons/react";
+import CTAButton from "@/components/lib/CTAButton";
+
+// Filter to only agent-compatible providers
+const AGENT_COMPATIBLE_PROVIDERS = [
+  "openai",
+  "anthropic",
+  "lmstudio",
+  "ollama",
+  "localai",
+  "groq",
+  "azure",
+  "koboldcpp",
+  "togetherai",
+  "openrouter",
+  "novita",
+  "mistral",
+  "perplexity",
+  "textgenwebui",
+  "generic-openai",
+  "bedrock",
+  "fireworksai",
+  "deepseek",
+  "ppio",
+  "litellm",
+  "apipie",
+  "xai",
+  "nvidia-nim",
+  "gemini",
+  "moonshotai",
+];
+
+const AGENT_LLM_PROVIDERS = [
+  {
+    name: "System Default",
+    value: "none",
+    logo: null,
+    options: () => <React.Fragment />,
+    description: "Agents will use the workspace or system LLM unless otherwise specified.",
+    requiredConfig: [],
+  },
+  ...AVAILABLE_LLM_PROVIDERS.filter((llm) =>
+    AGENT_COMPATIBLE_PROVIDERS.includes(llm.value)
+  ),
+];
 
 export default function GeneralAgentLLMPreference() {
-  const [settings, setSettings] = useState({});
-  const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  const formEl = useRef(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredLLMs, setFilteredLLMs] = useState([]);
+  const [selectedLLM, setSelectedLLM] = useState(null);
+  const [searchMenuOpen, setSearchMenuOpen] = useState(false);
+  const searchInputRef = useRef(null);
+  const { t } = useTranslation();
 
-  useEffect(() => {
-    async function fetchSettings() {
-      const _settings = await System.keys();
-      const _preferences = await Admin.systemPreferences();
-      setSettings({ ..._settings, preferences: _preferences.settings } ?? {});
-      setLoading(false);
-    }
-    fetchSettings();
-  }, []);
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    const form = e?.target || document.querySelector('form');
+    const data = { AgentLLMProvider: selectedLLM };
+    const formData = new FormData(form);
 
-  const handleUpdate = async (e) => {
-    setSaving(true);
-    e.preventDefault();
-    const data = {};
-
-    const form = new FormData(formEl.current);
-    for (var [key, value] of form.entries()) {
-      // Map agentProvider and agentModel to the correct ENV keys
-      if (key === "agentProvider") {
-        data["AgentLLMProvider"] = String(value);
-      } else if (key === "agentModel") {
-        data["AgentLLMModel"] = String(value);
+    // Map form fields to agent-specific settings
+    for (var [key, value] of formData.entries()) {
+      // Skip the provider since we already set it
+      if (key === "AgentLLMProvider") continue;
+      
+      // Map model preferences to agent model
+      if (key.includes("ModelPref") || key.includes("Model")) {
+        data["AgentLLMModel"] = value;
       } else {
-        data[key] = String(value);
+        // Pass through other settings as-is (API keys, endpoints, etc.)
+        data[key] = value;
       }
     }
 
     const { error } = await System.updateSystem(data);
-    if (error) {
-      showToast(`Error: ${error}`, "error", { clear: true });
-    } else {
-      showToast("Agent LLM settings updated successfully!", "success", { clear: true });
-      // Refresh settings
-      const _settings = await System.keys();
-      setSettings(_settings ?? {});
-    }
+    setSaving(true);
 
+    if (error) {
+      showToast(`Failed to save Agent LLM settings: ${error}`, "error");
+    } else {
+      showToast("Agent LLM preferences saved successfully.", "success");
+    }
     setSaving(false);
-    setHasChanges(false);
+    setHasChanges(!!error);
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-screen overflow-hidden bg-sidebar flex">
-        <Sidebar />
+  const updateLLMChoice = (selection) => {
+    setSearchQuery("");
+    setSelectedLLM(selection);
+    setSearchMenuOpen(false);
+    setHasChanges(true);
+  };
+
+  const handleXButton = () => {
+    if (searchQuery.length > 0) {
+      setSearchQuery("");
+      if (searchInputRef.current) searchInputRef.current.value = "";
+    } else {
+      setSearchMenuOpen(!searchMenuOpen);
+    }
+  };
+
+  useEffect(() => {
+    async function fetchKeys() {
+      const _settings = await System.keys();
+      setSettings(_settings);
+      // Use AgentLLMProvider if set, otherwise default to 'none'
+      setSelectedLLM(_settings?.AgentLLMProvider || "none");
+      setLoading(false);
+    }
+    fetchKeys();
+  }, []);
+
+  useEffect(() => {
+    const filtered = AGENT_LLM_PROVIDERS.filter((llm) =>
+      llm.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredLLMs(filtered);
+  }, [searchQuery, selectedLLM]);
+
+  const selectedLLMObject = AGENT_LLM_PROVIDERS.find(
+    (llm) => llm.value === selectedLLM
+  );
+
+  return (
+    <div className="w-screen h-screen overflow-hidden bg-theme-bg-container flex">
+      <Sidebar />
+      {loading ? (
         <div
           style={{ height: isMobile ? "100%" : "calc(100% - 32px)" }}
-          className="transition-all duration-500 relative md:ml-[2px] md:mr-[16px] md:my-[16px] md:rounded-[16px] bg-main-gradient w-full h-full overflow-y-scroll border-2 border-outline"
+          className="relative md:ml-[2px] md:mr-[16px] md:my-[16px] md:rounded-[16px] bg-theme-bg-secondary w-full h-full overflow-y-scroll p-4 md:p-0"
         >
           <div className="w-full h-full flex justify-center items-center">
             <PreLoader />
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-screen overflow-hidden bg-sidebar flex">
-      <Sidebar />
-      <div
-        style={{ height: isMobile ? "100%" : "calc(100% - 32px)" }}
-        className="transition-all duration-500 relative md:ml-[2px] md:mr-[16px] md:my-[16px] md:rounded-[16px] bg-main-gradient w-full h-full overflow-y-scroll border-2 border-outline"
-      >
-        <form
-          ref={formEl}
-          onSubmit={handleUpdate}
-          onChange={() => setHasChanges(true)}
-          className="flex flex-col w-full px-1 md:pl-6 md:pr-[86px] md:py-6 py-16"
+      ) : (
+        <div
+          style={{ height: isMobile ? "100%" : "calc(100% - 32px)" }}
+          className="relative md:ml-[2px] md:mr-[16px] md:my-[16px] md:rounded-[16px] bg-theme-bg-secondary w-full h-full overflow-y-scroll p-4 md:p-0"
         >
-          <div className="w-full flex flex-col gap-y-1 pb-6 border-white border-b-2 border-opacity-10">
-            <div className="flex gap-x-4 items-center">
-              <p className="text-lg leading-6 font-bold text-white">
-                Agent LLM Preference
-              </p>
+          <form onSubmit={handleSubmit} className="flex w-full">
+            <div className="flex flex-col w-full px-1 md:pl-6 md:pr-[50px] md:py-6 py-16">
+              <div className="w-full flex flex-col gap-y-1 pb-6 border-white light:border-theme-sidebar-border border-b-2 border-opacity-10">
+                <div className="flex gap-x-4 items-center">
+                  <p className="text-lg leading-6 font-bold text-white">
+                    Agent LLM Preference
+                  </p>
+                </div>
+                <p className="text-xs leading-[18px] font-base text-white text-opacity-60">
+                  Configure the default LLM provider and model that agents will use across all workspaces.
+                  These settings will be applied system-wide for agent functionality.
+                </p>
+              </div>
+              <div className="w-full justify-end flex">
+                {hasChanges && (
+                  <CTAButton
+                    type="submit"
+                    disabled={saving}
+                    className="mt-3 mr-0 -mb-14 z-10"
+                  >
+                    {saving ? "Saving..." : "Save changes"}
+                  </CTAButton>
+                )}
+              </div>
+              <div className="text-base font-bold text-white mt-6 mb-4">
+                Agent LLM Provider
+              </div>
+              <div className="relative">
+                {searchMenuOpen && (
+                  <div
+                    className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 backdrop-blur-sm z-10"
+                    onClick={() => setSearchMenuOpen(false)}
+                  />
+                )}
+                {searchMenuOpen ? (
+                  <div className="absolute top-0 left-0 w-full max-w-[640px] max-h-[310px] min-h-[64px] bg-theme-settings-input-bg rounded-lg flex flex-col justify-between cursor-pointer border-2 border-primary-button z-20">
+                    <div className="w-full flex flex-col gap-y-1">
+                      <div className="flex items-center sticky top-0 z-10 border-b border-[#9CA3AF] mx-4 bg-theme-settings-input-bg">
+                        <MagnifyingGlass
+                          size={20}
+                          weight="bold"
+                          className="absolute left-4 z-30 text-theme-text-primary -ml-4 my-2"
+                        />
+                        <input
+                          type="text"
+                          name="llm-search"
+                          autoComplete="off"
+                          placeholder="Search agent-compatible LLM providers"
+                          className="border-none -ml-4 my-2 bg-transparent z-20 pl-12 h-[38px] w-full px-4 py-1 text-sm outline-none text-theme-text-primary placeholder:text-theme-text-primary placeholder:font-medium"
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          ref={searchInputRef}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") e.preventDefault();
+                          }}
+                        />
+                        <X
+                          size={20}
+                          weight="bold"
+                          className="cursor-pointer text-white hover:text-x-button"
+                          onClick={handleXButton}
+                        />
+                      </div>
+                      <div className="flex-1 pl-4 pr-2 flex flex-col gap-y-1 overflow-y-auto white-scrollbar pb-4 max-h-[245px]">
+                        {filteredLLMs.map((llm) => {
+                          return (
+                            <LLMItem
+                              key={llm.name}
+                              name={llm.name}
+                              value={llm.value}
+                              image={llm.logo}
+                              description={llm.description}
+                              checked={selectedLLM === llm.value}
+                              onClick={() => updateLLMChoice(llm.value)}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    className="w-full max-w-[640px] h-[64px] bg-theme-settings-input-bg rounded-lg flex items-center p-[14px] justify-between cursor-pointer border-2 border-transparent hover:border-primary-button transition-all duration-300"
+                    type="button"
+                    onClick={() => setSearchMenuOpen(true)}
+                  >
+                    <div className="flex gap-x-4 items-center">
+                      {selectedLLMObject?.logo ? (
+                        <img
+                          src={selectedLLMObject.logo}
+                          alt={`${selectedLLMObject.name} logo`}
+                          className="w-10 h-10 rounded-md"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-md bg-theme-bg-primary flex items-center justify-center">
+                          <span className="text-sm text-white">Default</span>
+                        </div>
+                      )}
+                      <div className="flex flex-col text-left">
+                        <div className="text-sm font-semibold text-white">
+                          {selectedLLMObject?.name || "None selected"}
+                        </div>
+                        <div className="mt-1 text-xs text-description">
+                          {selectedLLMObject?.description ||
+                            "You need to select an LLM"}
+                        </div>
+                      </div>
+                    </div>
+                    <CaretUpDown
+                      size={24}
+                      weight="bold"
+                      className="text-white"
+                    />
+                  </button>
+                )}
+              </div>
+              <div
+                onChange={() => setHasChanges(true)}
+                className="mt-4 flex flex-col gap-y-1"
+              >
+                {selectedLLM && selectedLLM !== "none" &&
+                  AGENT_LLM_PROVIDERS.find(
+                    (llm) => llm.value === selectedLLM
+                  )?.options?.(settings)}
+              </div>
             </div>
-            <p className="text-xs leading-[18px] font-base text-white text-opacity-60">
-              Configure the default LLM provider and model that agents will use across all workspaces.
-              These settings will be applied system-wide for agent functionality.
-            </p>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-y-6">
-            <AgentLLMSelection
-              settings={settings}
-              setHasChanges={setHasChanges}
-            />
-          </div>
-
-          {hasChanges && (
-            <ContextualSaveBar
-              onSave={handleUpdate}
-              onCancel={() => {
-                setHasChanges(false);
-                formEl.current?.reset();
-              }}
-              disabled={saving}
-            />
-          )}
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

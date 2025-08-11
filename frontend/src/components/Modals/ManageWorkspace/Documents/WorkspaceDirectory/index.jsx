@@ -26,6 +26,7 @@ function WorkspaceDirectory({
   saveChanges,
   embeddingCosts,
   movedItems,
+  onWorkspaceUpdate,
 }) {
   const { t } = useTranslation();
   const [selectedItems, setSelectedItems] = useState({});
@@ -64,9 +65,22 @@ function WorkspaceDirectory({
       const folder = files.items.find((f) =>
         f.items.some((i) => i.id === itemId)
       );
+      if (!folder) {
+        return null;
+      }
       const item = folder.items.find((i) => i.id === itemId);
+      if (!item) {
+        return null;
+      }
       return `${folder.name}/${item.name}`;
-    });
+    }).filter(Boolean);
+
+    if (itemsToRemove.length === 0) {
+      showToast("No valid items to remove", "warning");
+      setLoadingMessage("");
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await Workspace.modifyEmbeddings(workspace.slug, {
@@ -81,9 +95,10 @@ function WorkspaceDirectory({
         return;
       }
       
+      // Force refresh the workspace data
       await fetchKeys(true);
       setSelectedItems({});
-      showToast("Documents removed successfully", "success");
+      showToast(`Successfully removed ${itemsToRemove.length} document(s)`, "success");
     } catch (error) {
       console.error("Failed to remove documents:", error);
       showToast(`Failed to remove documents: ${error.message}`, "error");

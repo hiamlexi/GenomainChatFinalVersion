@@ -157,11 +157,30 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason } =
+        const { success, reason, documents } =
           await Collector.processDocument(originalname);
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
+        }
+
+        // Track the document upload
+        const { DocumentUploads } = require("../models/documentUploads");
+        const user = response.locals?.user;
+        if (user && documents && documents.length > 0) {
+          for (const doc of documents) {
+            // Extract folder and filename from document path
+            const parts = doc.location.split('/');
+            const folderName = parts[parts.length - 2] || 'custom-documents';
+            const filename = parts[parts.length - 1];
+            
+            await DocumentUploads.create({
+              filename,
+              folderName,
+              fullPath: doc.location,
+              uploadedBy: user.id,
+            });
+          }
         }
 
         Collector.log(
@@ -203,10 +222,36 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason } = await Collector.processLink(link);
+        const { success, reason, documents = [] } = await Collector.processLink(link);
+        
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
+        }
+
+        // Track the document upload from link
+        const { DocumentUploads } = require("../models/documentUploads");
+        const user = response.locals?.user;
+        
+        // Always track documents when they are created, even without user context
+        if (documents && documents.length > 0) {
+          for (const doc of documents) {
+            // Extract folder and filename from document path
+            const parts = doc.location.split('/');
+            const folderName = parts[parts.length - 2] || 'custom-documents';
+            const filename = parts[parts.length - 1];
+            
+            // Try to avoid duplicates by checking if document already exists
+            const existing = await DocumentUploads.get({ fullPath: doc.location });
+            if (!existing) {
+              await DocumentUploads.create({
+                filename,
+                folderName,
+                fullPath: doc.location,
+                uploadedBy: user?.id || null, // Allow null if no user context
+              });
+            }
+          }
         }
 
         Collector.log(
@@ -933,6 +978,25 @@ function workspaceEndpoints(app) {
         if (!success || documents?.length === 0) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
+        }
+
+        // Track the document upload
+        const { DocumentUploads } = require("../models/documentUploads");
+        const userForUpload = response.locals?.user;
+        if (userForUpload && documents && documents.length > 0) {
+          for (const doc of documents) {
+            // Extract folder and filename from document path
+            const parts = doc.location.split('/');
+            const folderName = parts[parts.length - 2] || 'custom-documents';
+            const filename = parts[parts.length - 1];
+            
+            await DocumentUploads.create({
+              filename,
+              folderName,
+              fullPath: doc.location,
+              uploadedBy: userForUpload.id,
+            });
+          }
         }
 
         Collector.log(

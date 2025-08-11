@@ -200,16 +200,43 @@ const System = {
       });
   },
   deleteDocuments: async (names = []) => {
-    return await fetch(`${API_BASE}/system/remove-documents`, {
+    const response = await fetch(`${API_BASE}/system/remove-documents`, {
       method: "DELETE",
       headers: baseHeaders(),
       body: JSON.stringify({ names }),
-    })
-      .then((res) => res.ok)
-      .catch((e) => {
-        console.error(e);
-        return false;
-      });
+    });
+    
+    if (response.ok) {
+      return { success: true };
+    }
+    
+    // Handle different response types
+    if (response.status === 207) {
+      // Partial success
+      const data = await response.json();
+      return { 
+        success: false, 
+        partial: true,
+        message: data.message,
+        succeeded: data.succeeded,
+        failed: data.failed 
+      };
+    } else if (response.status === 403) {
+      // Permission denied
+      const data = await response.json();
+      return { 
+        success: false, 
+        error: data.error,
+        details: data.details 
+      };
+    } else {
+      // Other errors
+      const data = await response.json().catch(() => ({ error: "Unknown error" }));
+      return { 
+        success: false, 
+        error: data.error || "Failed to delete documents" 
+      };
+    }
   },
   deleteFolder: async (name) => {
     return await fetch(`${API_BASE}/system/remove-folder`, {

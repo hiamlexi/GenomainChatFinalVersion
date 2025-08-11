@@ -488,11 +488,55 @@ function systemEndpoints(app) {
     async (request, response) => {
       try {
         const { names } = reqBody(request);
-        for await (const name of names) await purgeDocument(name);
-        response.sendStatus(200).end();
+        
+        if (!names || !Array.isArray(names)) {
+          response.status(400).json({ error: "Invalid names parameter" });
+          return;
+        }
+        
+        const results = { succeeded: [], failed: [] };
+        
+        for (const name of names) {
+          try {
+            await purgeDocument(name);
+            results.succeeded.push(name);
+          } catch (docError) {
+            
+            // Handle permission errors specifically
+            if (docError.code === 'EACCES' || docError.code === 'EPERM') {
+              results.failed.push({ 
+                name, 
+                error: `Permission denied. Please ensure the server has write permissions for this file.` 
+              });
+            } else {
+              results.failed.push({ 
+                name, 
+                error: docError.message 
+              });
+            }
+          }
+        }
+        
+        // If some succeeded but some failed, return partial success
+        if (results.succeeded.length > 0 && results.failed.length > 0) {
+          response.status(207).json({
+            message: "Partial success",
+            succeeded: results.succeeded,
+            failed: results.failed
+          });
+        } else if (results.failed.length > 0 && results.succeeded.length === 0) {
+          // All failed
+          response.status(403).json({
+            error: "Failed to delete documents",
+            details: results.failed
+          });
+        } else {
+          // All succeeded
+          response.sendStatus(200).end();
+        }
       } catch (e) {
-        console.error(e.message, e);
-        response.sendStatus(500).end();
+        console.error("Error deleting documents:", e.message, e);
+        response.status(500).json({ error: e.message });
       }
     }
   );
@@ -517,7 +561,8 @@ function systemEndpoints(app) {
     [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
     async (_, response) => {
       try {
-        const localFiles = await viewLocalFiles();
+        const user = response.locals?.user;
+        const localFiles = await viewLocalFiles(user);
         response.status(200).json({ localFiles });
       } catch (e) {
         console.error(e.message, e);

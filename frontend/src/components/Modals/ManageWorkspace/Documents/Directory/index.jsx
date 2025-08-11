@@ -86,15 +86,37 @@ function Directory({
           folderCount: foldersToRemove.length,
         })
       );
-      await System.deleteDocuments(toRemove);
-      for (const folderName of foldersToRemove) {
-        await System.deleteFolder(folderName);
+      
+      const deleteResult = await System.deleteDocuments(toRemove);
+      
+      if (deleteResult.success) {
+        showToast("Documents deleted successfully", "success");
+      } else if (deleteResult.partial) {
+        // Some files deleted, some failed
+        const failedNames = deleteResult.failed.map(f => f.name.split('/').pop()).join(', ');
+        showToast(`Some files could not be deleted: ${failedNames}. ${deleteResult.failed[0]?.error || ''}`, "warning");
+      } else if (deleteResult.error) {
+        // All failed
+        if (deleteResult.details) {
+          const errorMsg = deleteResult.details[0]?.error || deleteResult.error;
+          showToast(`Failed to delete: ${errorMsg}`, "error");
+        } else {
+          showToast(`Failed to delete: ${deleteResult.error}`, "error");
+        }
+      }
+      
+      // Still try to delete folders if documents were at least partially successful
+      if (deleteResult.success || deleteResult.partial) {
+        for (const folderName of foldersToRemove) {
+          await System.deleteFolder(folderName);
+        }
       }
 
       await fetchKeys(true);
       setSelectedItems({});
     } catch (error) {
       console.error("Failed to delete files and folders:", error);
+      showToast("An unexpected error occurred while deleting", "error");
     } finally {
       setLoading(false);
       setSelectedItems({});

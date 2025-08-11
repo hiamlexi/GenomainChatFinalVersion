@@ -24,13 +24,51 @@ async function fileData(filePath = null) {
   return JSON.parse(data);
 }
 
-async function viewLocalFiles() {
+async function viewLocalFiles(user = null) {
   if (!fs.existsSync(documentsPath)) fs.mkdirSync(documentsPath);
   const liveSyncAvailable = await DocumentSyncQueue.enabled();
   const directory = {
     name: "documents",
     type: "folder",
     items: [],
+  };
+
+  // Get accessible paths for the user
+  const { DocumentUploads } = require("../../models/documentUploads");
+  const { ROLES } = require("../../utils/middleware/multiUserProtected");
+  const prisma = require("../../models/documentUploads").prisma || require("../../utils/prisma");
+  
+  const isAdmin = user?.role === ROLES.admin;
+  
+  // Get all tracked documents
+  const trackedDocs = await prisma.document_uploads.findMany({
+    select: { fullPath: true, uploadedBy: true },
+  });
+  
+  const trackedPaths = new Map();
+  trackedDocs.forEach(doc => {
+    trackedPaths.set(doc.fullPath, doc.uploadedBy);
+  });
+  
+  // Determine which documents are accessible
+  const isAccessible = (docPath) => {
+    // Admins can see everything
+    if (isAdmin) return true;
+    
+    // If no user context, show all (backward compatibility)
+    if (!user) return true;
+    
+    // Check if document is tracked
+    const uploadedBy = trackedPaths.get(docPath);
+    
+    // If not tracked (legacy document), show to everyone
+    if (uploadedBy === undefined) return true;
+    
+    // If tracked with no uploader (scraped without user context), show to everyone
+    if (uploadedBy === null) return true;
+    
+    // For managers and regular users, only show their own uploads
+    return uploadedBy === user.id;
   };
 
   for (const file of fs.readdirSync(documentsPath)) {
@@ -51,6 +89,12 @@ async function viewLocalFiles() {
       for (let i = 0; i < subfiles.length; i++) {
         const subfile = subfiles[i];
         const cachefilename = `${file}/${subfile}`;
+        
+        // Skip files the user doesn't have access to
+        if (!isAccessible(cachefilename)) {
+          continue;
+        }
+        
         if (path.extname(subfile) !== ".json") continue;
         filePromises.push(
           fileToPickerData({
@@ -64,21 +108,25 @@ async function viewLocalFiles() {
       const results = await Promise.all(filePromises)
         .then((results) => results.filter((i) => !!i)) // Remove null results
         .then((results) => results.filter((i) => hasRequiredMetadata(i))); // Remove invalid file structures
-      subdocs.items.push(...results);
+      
+      // Only add the folder if it has accessible items
+      if (results.length > 0) {
+        subdocs.items.push(...results);
 
-      // Grab the pinned workspaces and watched documents for this folder's documents
-      // at the time of the query so we don't have to re-query the database for each file
-      const pinnedWorkspacesByDocument =
-        await getPinnedWorkspacesByDocument(filenames);
-      const watchedDocumentsFilenames =
-        await getWatchedDocumentFilenames(filenames);
-      for (const item of subdocs.items) {
-        item.pinnedWorkspaces = pinnedWorkspacesByDocument[item.name] || [];
-        item.watched =
-          watchedDocumentsFilenames.hasOwnProperty(item.name) || false;
+        // Grab the pinned workspaces and watched documents for this folder's documents
+        // at the time of the query so we don't have to re-query the database for each file
+        const pinnedWorkspacesByDocument =
+          await getPinnedWorkspacesByDocument(filenames);
+        const watchedDocumentsFilenames =
+          await getWatchedDocumentFilenames(filenames);
+        for (const item of subdocs.items) {
+          item.pinnedWorkspaces = pinnedWorkspacesByDocument[item.name] || [];
+          item.watched =
+            watchedDocumentsFilenames.hasOwnProperty(item.name) || false;
+        }
+
+        directory.items.push(subdocs);
       }
-
-      directory.items.push(subdocs);
     }
   }
 

@@ -339,8 +339,8 @@ export default function GeneralLLMPreference() {
   const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
+    e?.preventDefault();
+    const form = e?.target || document.querySelector('form');
     const data = { LLMProvider: selectedLLM };
     const formData = new FormData(form);
 
@@ -425,7 +425,8 @@ export default function GeneralLLMPreference() {
               <div className="w-full justify-end flex">
                 {hasChanges && (
                   <CTAButton
-                    onClick={() => handleSubmit()}
+                    type="submit"
+                    disabled={saving}
                     className="mt-3 mr-0 -mb-14 z-10"
                   >
                     {saving ? "Saving..." : "Save changes"}

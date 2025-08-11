@@ -114,6 +114,8 @@ model users {
   companies                   companies?                    @relation(fields: [companyId], references: [id])
   computer_agents             computer_agents?              @relation(fields: [agentId], references: [id])
   training_jobs               training_jobs[]
+  created_workspaces          workspaces[]                  @relation("WorkspaceCreator")
+  document_uploads            document_uploads[]
 }
 
 model recovery_codes {
@@ -145,6 +147,20 @@ model document_vectors {
   lastUpdatedAt DateTime @default(now())
 }
 
+model document_uploads {
+  id            Int      @id @default(autoincrement())
+  filename      String
+  folderName    String
+  fullPath      String   @unique
+  uploadedBy    Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+  uploader      users?   @relation(fields: [uploadedBy], references: [id], onDelete: SetNull)
+
+  @@index([uploadedBy])
+  @@index([fullPath])
+}
+
 model welcome_messages {
   id         Int      @id @default(autoincrement())
   user       String
@@ -159,6 +175,7 @@ model workspaces {
   slug                         String                         @unique
   vectorTag                    String?
   createdAt                    DateTime                       @default(now())
+  createdBy                    Int?                           // User who created this workspace
   openAiTemp                   Float?
   openAiHistory                Int                            @default(20)
   lastUpdatedAt                DateTime                       @default(now())
@@ -180,6 +197,7 @@ model workspaces {
   threads                      workspace_threads[]
   workspace_agent_invocations  workspace_agent_invocations[]
   prompt_history               prompt_history[]
+  creator                      users?                         @relation("WorkspaceCreator", fields: [createdBy], references: [id], onDelete: SetNull)
 }
 
 model workspace_threads {

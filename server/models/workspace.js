@@ -243,6 +243,7 @@ const Workspace = {
           ...defaultConfig,
           ...this.validateFields(additionalFields),
           slug,
+          createdBy: creatorId || null, // Track who created the workspace
         },
       });
 
@@ -303,9 +304,46 @@ const Workspace = {
   },
 
   getWithUser: async function (user = null, clause = {}) {
-    if ([ROLES.admin, ROLES.manager].includes(user.role))
+    // Admins can see all workspaces
+    if (user?.role === ROLES.admin)
       return this.get(clause);
 
+    // Managers can only see workspaces they created or are assigned to
+    if (user?.role === ROLES.manager) {
+      try {
+        const workspace = await prisma.workspaces.findFirst({
+          where: {
+            ...clause,
+            OR: [
+              { createdBy: user.id },
+              {
+                workspace_users: {
+                  some: {
+                    user_id: user.id,
+                  },
+                },
+              },
+            ],
+          },
+          include: {
+            workspace_users: true,
+            documents: true,
+          },
+        });
+
+        if (!workspace) return null;
+
+        return {
+          ...workspace,
+          documents: await Document.forWorkspace(workspace.id),
+        };
+      } catch (error) {
+        console.error(error.message);
+        return null;
+      }
+    }
+
+    // Regular users can only see workspaces they are assigned to
     try {
       const workspace = await prisma.workspaces.findFirst({
         where: {
@@ -382,9 +420,38 @@ const Workspace = {
     limit = null,
     orderBy = null
   ) {
-    if ([ROLES.admin, ROLES.manager].includes(user.role))
+    // Admins can see all workspaces
+    if (user?.role === ROLES.admin)
       return await this.where(clause, limit, orderBy);
 
+    // Managers can only see workspaces they created or are assigned to
+    if (user?.role === ROLES.manager) {
+      try {
+        const workspaces = await prisma.workspaces.findMany({
+          where: {
+            ...clause,
+            OR: [
+              { createdBy: user.id },
+              {
+                workspace_users: {
+                  some: {
+                    user_id: user.id,
+                  },
+                },
+              },
+            ],
+          },
+          ...(limit !== null ? { take: limit } : {}),
+          ...(orderBy !== null ? { orderBy } : {}),
+        });
+        return workspaces;
+      } catch (error) {
+        console.error(error.message);
+        return [];
+      }
+    }
+
+    // Regular users can only see workspaces they are assigned to
     try {
       const workspaces = await prisma.workspaces.findMany({
         where: {
@@ -408,6 +475,25 @@ const Workspace = {
   whereWithUsers: async function (clause = {}, limit = null, orderBy = null) {
     try {
       const workspaces = await this.where(clause, limit, orderBy);
+      for (const workspace of workspaces) {
+        const userIds = (
+          await WorkspaceUser.where({ workspace_id: Number(workspace.id) })
+        ).map((rel) => rel.user_id);
+        workspace.userIds = userIds;
+      }
+      return workspaces;
+    } catch (error) {
+      console.error(error.message);
+      return [];
+    }
+  },
+
+  whereWithUsersForUser: async function (user = null, clause = {}, limit = null, orderBy = null) {
+    try {
+      // Use whereWithUser to get filtered workspaces based on user role
+      const workspaces = await this.whereWithUser(user, clause, limit, orderBy);
+      
+      // Add userIds to each workspace
       for (const workspace of workspaces) {
         const userIds = (
           await WorkspaceUser.where({ workspace_id: Number(workspace.id) })

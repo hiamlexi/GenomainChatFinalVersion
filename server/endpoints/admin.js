@@ -322,7 +322,9 @@ function adminEndpoints(app) {
     [validatedRequest, strictMultiUserRoleValid([ROLES.admin, ROLES.manager])],
     async (_request, response) => {
       try {
-        const workspaces = await Workspace.whereWithUsers();
+        const user = response.locals?.user;
+        // Use the new method that respects user permissions
+        const workspaces = await Workspace.whereWithUsersForUser(user);
         response.status(200).json({ workspaces });
       } catch (e) {
         console.error(e);
