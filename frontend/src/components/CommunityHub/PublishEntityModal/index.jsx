@@ -1,6 +1,4 @@
 import { X } from "@phosphor-icons/react";
-import { useCommunityHubAuth } from "@/hooks/useCommunityHubAuth";
-import UnauthenticatedHubModal from "@/components/CommunityHub/UnauthenticatedHubModal";
 import SystemPrompts from "./SystemPrompts";
 import ModalWrapper from "@/components/ModalWrapper";
 import AgentFlows from "./AgentFlows";
@@ -12,10 +10,7 @@ export default function PublishEntityModal({
   entityType,
   entity,
 }) {
-  const { isAuthenticated, loading } = useCommunityHubAuth();
-  if (!show || loading) return null;
-  if (!isAuthenticated)
-    return <UnauthenticatedHubModal show={show} onClose={onClose} />;
+  if (!show) return null;
 
   const renderEntityForm = () => {
     switch (entityType) {
