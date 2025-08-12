@@ -25,8 +25,8 @@ function authGatewayEndpoints(app) {
       const adminSystemUrl = process.env.ADMIN_SYSTEM_URL || "http://localhost:5002";
       
       try {
-        // Login to AdminSystem
-        const loginResponse = await axios.post(`${adminSystemUrl}/api/auth/login`, {
+        // Login to AdminSystem - using user-login endpoint for chat interface
+        const loginResponse = await axios.post(`${adminSystemUrl}/api/auth/user-login`, {
           username,
           password,
         });

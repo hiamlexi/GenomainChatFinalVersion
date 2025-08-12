@@ -137,8 +137,8 @@ function systemEndpoints(app) {
           const adminSystemUrl = process.env.ADMIN_SYSTEM_URL || "http://localhost:5002";
           const axios = require("axios");
           
-          // Login to AdminSystem
-          const loginResponse = await axios.post(`${adminSystemUrl}/api/auth/login`, {
+          // Login to AdminSystem - using user-login endpoint for chat interface
+          const loginResponse = await axios.post(`${adminSystemUrl}/api/auth/user-login`, {
             username,
             password,
           });
