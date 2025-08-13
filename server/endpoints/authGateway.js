@@ -55,8 +55,39 @@ function authGatewayEndpoints(app) {
           username: user.username || "Unknown user",
         });
 
-        // Return the AdminSystem token and user info
-        response.status(200).json({
+        // Check if user needs recovery codes (hybrid approach)
+        let recoveryCodes = null;
+        if (user.needsRecoveryCodes) {
+          try {
+            // Import recovery code generation from Genomain's own utilities
+            const { generateRecoveryCodes } = require("../utils/PasswordRecovery");
+            const { User } = require("../models/user");
+            const { RecoveryCode } = require("../models/passwordRecovery");
+            
+            // Check if user exists in Genomain database
+            const genomainUser = await User.get({ username: user.username });
+            
+            if (genomainUser) {
+              // Check if recovery codes already exist
+              const existingCodes = await RecoveryCode.hashesForUser(genomainUser.id);
+              
+              if (existingCodes.length === 0) {
+                // Generate new recovery codes in Genomain's database
+                recoveryCodes = await generateRecoveryCodes(genomainUser.id);
+                
+                // Notify AdminSystem that codes have been generated (optional)
+                // This could be done via a webhook or API call if needed
+                console.log(`Generated recovery codes for user ${user.username} after password reset`);
+              }
+            }
+          } catch (error) {
+            console.error("Error generating recovery codes:", error);
+            // Continue without recovery codes if there's an error
+          }
+        }
+
+        // Prepare response
+        const responseData = {
           valid: true,
           user: {
             id: user._id || user.id,
@@ -66,7 +97,15 @@ function authGatewayEndpoints(app) {
           },
           token: token,
           message: null,
-        });
+        };
+
+        // Add recovery codes if generated
+        if (recoveryCodes && recoveryCodes.length > 0) {
+          responseData.recoveryCodes = recoveryCodes;
+        }
+
+        // Return the response
+        response.status(200).json(responseData);
       } catch (error) {
         console.error("AdminSystem login error:", error.response?.data || error.message);
         

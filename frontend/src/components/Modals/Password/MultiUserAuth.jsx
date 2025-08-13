@@ -104,11 +104,32 @@ const RecoveryForm = ({ onSubmit, setShowRecoveryForm }) => {
 const ResetPasswordForm = ({ onSubmit }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(true);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(newPassword, confirmPassword);
   };
+
+  // Password requirements based on the backend validation
+  const passwordRequirements = [
+    { met: newPassword.length >= 8, text: "At least 8 characters" },
+    { met: newPassword.length <= 250, text: "Maximum 250 characters" },
+  ];
+
+  // Check if password potentially meets basic requirements
+  const hasLowercase = /[a-z]/.test(newPassword);
+  const hasUppercase = /[A-Z]/.test(newPassword);
+  const hasNumber = /\d/.test(newPassword);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+  // Additional recommendations (not required but good practice)
+  const recommendations = [
+    { met: hasLowercase, text: "Include lowercase letters (recommended)" },
+    { met: hasUppercase, text: "Include uppercase letters (recommended)" },
+    { met: hasNumber, text: "Include numbers (recommended)" },
+    { met: hasSymbol, text: "Include special characters (recommended)" },
+  ];
 
   return (
     <form
@@ -134,9 +155,49 @@ const ResetPasswordForm = ({ onSubmit }) => {
               placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              onFocus={() => setShowPasswordRequirements(true)}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
               required
             />
+            
+            {/* Password Requirements Section */}
+            {showPasswordRequirements && newPassword && (
+              <div className="mt-3 p-3 bg-black/20 backdrop-blur-sm rounded-lg border border-white/10">
+                <p className="text-xs font-semibold text-gray-300 mb-2">Password Requirements:</p>
+                <ul className="space-y-1">
+                  {passwordRequirements.map((req, index) => (
+                    <li
+                      key={index}
+                      className={`text-xs flex items-center gap-2 ${
+                        req.met ? "text-green-400" : "text-gray-400"
+                      }`}
+                    >
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${
+                        req.met ? "bg-green-400" : "bg-gray-500"
+                      }`}></span>
+                      {req.text}
+                    </li>
+                  ))}
+                </ul>
+                
+                <p className="text-xs font-semibold text-gray-300 mt-3 mb-2">Strong Password Tips:</p>
+                <ul className="space-y-1">
+                  {recommendations.map((rec, index) => (
+                    <li
+                      key={index}
+                      className={`text-xs flex items-center gap-2 ${
+                        rec.met ? "text-blue-400" : "text-gray-500"
+                      }`}
+                    >
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${
+                        rec.met ? "bg-blue-400" : "bg-gray-600"
+                      }`}></span>
+                      {rec.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
           <div>
             <input
@@ -148,13 +209,20 @@ const ResetPasswordForm = ({ onSubmit }) => {
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white/15 transition-all"
               required
             />
+            {confirmPassword && newPassword !== confirmPassword && (
+              <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+            )}
+            {confirmPassword && newPassword === confirmPassword && confirmPassword.length > 0 && (
+              <p className="text-xs text-green-400 mt-1">Passwords match</p>
+            )}
           </div>
         </div>
       </div>
       <div className="flex items-center mt-6 w-full flex-col gap-y-4">
         <button
           type="submit"
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200"
+          disabled={!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8}
+          className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200"
         >
           Reset Password
         </button>

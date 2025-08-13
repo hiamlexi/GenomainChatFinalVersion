@@ -298,7 +298,13 @@ function systemEndpoints(app) {
           { id: existingUser.id, username: existingUser.username },
           process.env.JWT_EXPIRY
         );
-        if (!existingUser.seen_recovery_codes) {
+        
+        // Check if user has recovery codes already (created by AdminSystem)
+        const { RecoveryCode } = require("../models/passwordRecovery");
+        const existingCodes = await RecoveryCode.hashesForUser(existingUser.id);
+        
+        if (!existingUser.seen_recovery_codes && existingCodes.length === 0) {
+          // Only generate codes if they don't exist already
           const plainTextCodes = await generateRecoveryCodes(existingUser.id);
           response.status(200).json({
             valid: true,
@@ -306,6 +312,17 @@ function systemEndpoints(app) {
             token: sessionToken,
             message: null,
             recoveryCodes: plainTextCodes,
+          });
+          return;
+        } else if (!existingUser.seen_recovery_codes && existingCodes.length > 0) {
+          // Codes exist but user hasn't seen them - mark as seen and remind them
+          await User._update(existingUser.id, { seen_recovery_codes: true });
+          response.status(200).json({
+            valid: true,
+            user: User.filterFields(existingUser),
+            token: sessionToken,
+            message: "Recovery codes were provided by your administrator. Please ensure you have saved them securely.",
+            recoveryCodes: null, // Don't show codes since we can't retrieve plain text
           });
           return;
         }
