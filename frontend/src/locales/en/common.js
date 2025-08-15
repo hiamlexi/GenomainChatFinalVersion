@@ -184,7 +184,7 @@ const TRANSLATIONS = {
       features: {
         customAgents: {
           title: "Custom AI Agents",
-          description: "Build powerful AI Agents and automations with no code.",
+          description: "Start a Genomain chat and discover what's possible.",
           primaryAction: "Chat using @agent",
           secondaryAction: "Build an agent flow",
         },

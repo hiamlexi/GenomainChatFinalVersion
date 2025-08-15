@@ -19,8 +19,6 @@ export default function ExploreFeatures() {
     }
   };
 
-  const buildAgentFlow = () => navigate(paths.agents.builder());
-
   return (
     <div>
       <h1 className="text-theme-home-text uppercase text-sm font-semibold mb-4">
@@ -35,12 +33,7 @@ export default function ExploreFeatures() {
           primaryAction={t(
             "main-page.exploreMore.features.customAgents.primaryAction"
           )}
-          secondaryAction={t(
-            "main-page.exploreMore.features.customAgents.secondaryAction"
-          )}
           onPrimaryAction={chatWithAgent}
-          onSecondaryAction={buildAgentFlow}
-          isNew={true}
         />
       </div>
     </div>

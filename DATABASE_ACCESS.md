@@ -1,7 +1,7 @@
 # AnythingLLM Database Access
 
 AnythingLLM uses SQLite as its database, which is stored locally at:
-`/Users/linhpham/Desktop/test/Genomain/server/storage/anythingllm.db`
+`/server/storage/anythingllm.db`
 
 ## Access Methods
 
@@ -23,7 +23,7 @@ AnythingLLM uses SQLite as its database, which is stored locally at:
 
 ### 3. SQLite Command Line
 ```bash
-sqlite3 /Users/linhpham/Desktop/test/anything-llm/server/storage/anythingllm.db
+sqlite3 server/storage/anythingllm.db
 ```
 
 ### 4. GUI Applications
@@ -33,7 +33,7 @@ You can also use SQLite GUI applications like:
 - DBeaver: https://dbeaver.io/
 
 Simply open the database file located at:
-`/Users/linhpham/Desktop/test/anything-llm/server/storage/anythingllm.db`
+`server/storage/anythingllm.db`
 
 ## Important Tables
 
